@@ -21,7 +21,7 @@ library(ggplot2)
 We will be using data that has extensive information on secondary school students in their math class. 
 
 ```{r}
-data <- read.csv("student-mat.csv")
+data <- read.csv("data/student-mat.csv")
 
 
 ```
