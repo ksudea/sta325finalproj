@@ -199,3 +199,77 @@ From the initial explorations above, we can see a few possible trends. Students 
 names(data)
 ```
 
+```{r}
+num_cols <- unlist(lapply(data, is.numeric))
+quant_vars <- data[,num_cols]
+cor(quant_vars)
+
+library(corr)
+quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
+```
+
+
+## Splitting data into training and testing sets
+
+```{r}
+data <- data %>%
+  mutate(ord_g3 = factor(G3, ordered=T)
+  )
+data$ord_g3
+attach(data)
+set.seed(3)
+train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
+test_ind_neg <- -train_ind
+training <- data[train_ind, ]
+testing <- data[test_ind_neg, ]
+training
+testing
+
+```
+
+
+## Multicategory ordinal logit model
+
+```{r}
+
+require(foreign)
+require(nnet)
+require(ggplot2)
+require(reshape2)
+
+mod1 <- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc, data = training)
+summary(mod1)
+(ctable <- coef(summary(mod1)))
+```
+
+Calculate and store p-values:
+
+```{r}
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+```
+Confidence intervals for parameter estimates:
+
+```{r}
+(ci <- confint(mod1))
+
+confint.default(mod1) 
+```
+
+To get odds ratios:
+
+```{r}
+exp(coef(mod1))
+exp(cbind(OR = coef(mod1), ci))
+
+```
+
+Testing set:
+
+How do you evaluate it?? 
+
+```{r}
+pred.ord <- predict(mod1, testing)
+
+```
