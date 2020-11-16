@@ -1,2 +1,2 @@
-# sta325casestudy
+# sta325finalproj
 Understanding Student Alcohol Consumption
