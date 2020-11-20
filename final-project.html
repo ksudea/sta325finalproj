@@ -2648,8 +2648,13 @@ training</code></pre>
 ## 386               no     no     10
 ## 389               no     no      8</code></pre>
 </div>
+<div id="linear-model" class="section level2">
+<h2>Linear model</h2>
+<p>Modeling, diagnostics, predictions</p>
+</div>
 <div id="multicategory-ordinal-logit-model" class="section level2">
 <h2>Multicategory ordinal logit model</h2>
+<p>Justification for choosing the model[]</p>
 <pre class="r"><code>require(foreign)</code></pre>
 <pre><code>## Loading required package: foreign</code></pre>
 <pre class="r"><code>require(nnet)
@@ -2841,8 +2846,11 @@ summary(mod1)</code></pre>
 ## first_gen_collegeyes 0.5537892 0.3620002 0.8444440
 ## Walclow              1.1420717 0.6822748 1.9085671</code></pre>
 <p>Testing set:</p>
-<p>How do you evaluate it??</p>
 <pre class="r"><code>pred.ord &lt;- predict(mod1, testing)</code></pre>
+<p>Model diagnostics:</p>
+</div>
+<div id="trees-etc" class="section level2">
+<h2>Trees etc</h2>
 </div>
 
 
