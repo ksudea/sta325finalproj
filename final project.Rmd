@@ -204,8 +204,8 @@ num_cols <- unlist(lapply(data, is.numeric))
 quant_vars <- data[,num_cols]
 cor(quant_vars)
 
-library(corr)
-quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
+#library(corr)
+#quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
 ```
 
 
@@ -236,6 +236,8 @@ require(foreign)
 require(nnet)
 require(ggplot2)
 require(reshape2)
+require(MASS)
+require(Hmisc)
 
 mod1 <- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc, data = training)
 summary(mod1)
