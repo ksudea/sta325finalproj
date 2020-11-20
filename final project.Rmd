@@ -12,6 +12,7 @@ library(stringr)
 library(knitr)
 library(nnet)
 library(ggplot2)
+library(MASS)
 ```
 
 ### Introduction
@@ -203,11 +204,6 @@ names(data)
 num_cols <- unlist(lapply(data, is.numeric))
 quant_vars <- data[,num_cols]
 cor(quant_vars)
-<<<<<<< HEAD
-=======
-
-<<<<<<< HEAD
->>>>>>> e4a3d761d0867a67e762903b9006ea581d916d2d
 #library(corr)
 #quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
 ```
@@ -236,9 +232,36 @@ testing
 
 Modeling, diagnostics, predictions
 
+```{r}
+base_lm <- lm(G3 ~ . -G2 -G1 -ord_g3 -stable_learning_env, data)
+summary(base_lm)
+
+step.model <- stepAIC(base_lm, direction="both")
+summary(step.model)
+```
+
+From fitting the base variables in a linear model, we can see that the variables sex, schoolsup, famsup, romantic, freetime, goout, absences, and failed are active. 
+
+Based on the backwards stepwise regression model, it seems that the variables sex, Mjob, studytime, higher, romantic, freetime, goout, absences, first_gen_college, famsup, failed.
+
+Based on these active variables, some interactions that we think could be significant are: schoolsup*failed, famsup*first_gen_college, higher*first_gen_college.
+
+```{r}
+activelm <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + Mjob + studytime + higher + first_gen_college + famsup)^2)
+
+summary(activelm)
+```
+
+From this, we can see that there seem to be significant interaction effects between sex and schoolsup, sex and first_gen_college, sex and Mjob, schoolsup and absences, schoolsup and studytime, schoolsup and first_gen_college, absences and failed, failed and first_gen_college, Mjob and studytime, Mjob and first_gen_college, studytime and famsup. 
+
+
 ## Multicategory ordinal logit model
 
-Justification for choosing the model[]
+Due to the way grades are assigned as values between 0 and 20, we would like to consider G3 as an ordered categorical variable with 21 levels. This would allow us to fit a multicategory ordinal logistic model to the data. 
+
+We examine the EDA and active variables in the linear model to choose the predictors in our base model. 
+
+Fitting the base model:
 
 ```{r}
 
@@ -249,7 +272,7 @@ require(reshape2)
 require(MASS)
 require(Hmisc)
 
-mod1 <- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc, data = training)
+mod1 <- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc + sex + schoolsup + famsup + absences + studytime + higher, data = training)
 summary(mod1)
 (ctable <- coef(summary(mod1)))
 ```
@@ -257,44 +280,118 @@ summary(mod1)
 Calculate and store p-values:
 
 ```{r}
-p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
-(ctable <- cbind(ctable, "p value" = p))
+p1 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p1))
 
 ```
 Confidence intervals for parameter estimates:
 
 ```{r}
-(ci <- confint(mod1))
+(ci1 <- confint(mod1))
 
-confint.default(mod1) 
 ```
 
-To get odds ratios:
+Analyzing the p-values and confidence intervals allows us to determine whether the coefficient estimates are significant. Based on these, failed, romantic, goout, first_gen_college, sex, schoolsup, famsup seem to be active. (Studytime is dubious, but we will include it in the next model)
+
+Refitting a model with these predictors:
+
+(Note: AIC is lower with studytime than without, and studytime seems significant.)
 
 ```{r}
-exp(coef(mod1))
-exp(cbind(OR = coef(mod1), ci))
+mod2 <- polr(ord_g3 ~ failed + romantic + goout + first_gen_college + studytime + sex + schoolsup + famsup, data = training)
+summary(mod2)
+(ctable <- coef(summary(mod2)))
+p2 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p2))
+(ci2 <- confint(mod2))
 
 ```
 
-Testing set:
+AIC has decreased. 
+
+Based on the p-values and confidence intervals, romantic does not seem to be significant. Let's try excluding it. 
+
+Pared-down model again: 
+```{r}
+mod3 <- polr(ord_g3 ~ failed + goout + first_gen_college + sex + schoolsup + studytime, data = training)
+summary(mod3)
+(ctable <- coef(summary(mod3)))
+p3 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p3))
+(ci3 <- confint(mod3))
+
+```
+All predictors are significant, but AIC has increased compared to mod2.
+
+Evaluating accuracy of the model for the training set:
 
 ```{r}
-pred.ord <- predict(mod1, testing)
+acc.ord3 <- predict(mod3, training)
+ctable <- table(training$G3, acc.ord3)
+round((sum(diag(ctable))/sum(ctable))*100,2)
+ctable
+```
+
+Very terrible accuracy even for the training set.
+
+What if we add interaction terms?
+
+Let's base our interaction terms on the discussion for the linear model. 
+
+```{r}
+mod4 <- polr(ord_g3 ~ failed + goout + romantic +  first_gen_college + sex + schoolsup + sex*schoolsup + sex*first_gen_college + schoolsup * failed + schoolsup * studytime + schoolsup * first_gen_college + studytime*famsup, data = training)
+summary(mod4)
+(ctable <- coef(summary(mod4)))
+p4 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p4))
+(ci4 <- confint(mod4))
+```
+AIC has decreased significantly compared to the previous models without interaction terms, by nearly 20. However, in this model, sex, its interaction with schoolsup, and its interaction with first_gen_college all seem to be insignificant. The interaction between studytime and famsup and failed and schoolsup do not seem significant either, so let us remove it to pare down the model: 
+
+```{r}
+mod5 <- polr(ord_g3 ~ failed + goout + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, data = training)
+summary(mod5)
+(ctable <- coef(summary(mod5)))
+p5 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p5))
+(ci5 <- confint(mod5))
 
 ```
-<<<<<<< HEAD
+This has resulted in an increase in the AIC, which is still lower than the first three models. 
 
-Model diagnostics:
+Let's check the accuracy of this model with interaction terms:
+
+```{r}
+acc.ord4 <- predict(mod4, training)
+ctable <- table(training$G3, acc.ord4)
+round((sum(diag(ctable))/sum(ctable))*100,2)
+ctable
+
+```
+The accuracy is even lower than mod3, at only 19.94% for the training set.
+
+
+Checking on testing set:
+
+```{r}
+pred.ord3 <- predict(mod3, testing)
+ctable <- table(testing$G3, pred.ord3)
+round((sum(diag(ctable))/sum(ctable))*100,2)
+
+pred.ord4 <- predict(mod4, testing)
+ctable <- table(testing$G3, pred.ord4)
+round((sum(diag(ctable))/sum(ctable))*100,2)
+
+
+pred.ord5 <- predict(mod5, testing)
+ctable <- table(testing$G3, pred.ord5)
+round((sum(diag(ctable))/sum(ctable))*100,2)
+
+
+```
+Highly inaccurate model, not a good fit for the data.
 
 
 ## Trees etc
 
-=======
-=======
-library(corrr)
-quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
-```
 
->>>>>>> 0a6976b7bda81be73e683d4929113d7a674dd332
->>>>>>> e4a3d761d0867a67e762903b9006ea581d916d2d

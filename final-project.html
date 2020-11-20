@@ -2651,10 +2651,1140 @@ training</code></pre>
 <div id="linear-model" class="section level2">
 <h2>Linear model</h2>
 <p>Modeling, diagnostics, predictions</p>
+<pre class="r"><code>base_lm &lt;- lm(G3 ~ . -G2 -G1 -ord_g3 -stable_learning_env, data)
+summary(base_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = G3 ~ . - G2 - G1 - ord_g3 - stable_learning_env, 
+##     data = data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -12.4629  -1.8563   0.3768   2.7129   8.4183 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)          14.26449    4.83968   2.947  0.00342 **
+## schoolMS              0.71627    0.78940   0.907  0.36483   
+## sexM                  1.24064    0.49743   2.494  0.01309 * 
+## age                  -0.29977    0.21631  -1.386  0.16667   
+## addressU              0.50527    0.57951   0.872  0.38386   
+## famsizeLE3            0.70815    0.48336   1.465  0.14380   
+## PstatusT             -0.33706    0.72697  -0.464  0.64318   
+## Medu                  0.19327    0.35893   0.538  0.59060   
+## Fedu                 -0.24782    0.30312  -0.818  0.41416   
+## Mjobhealth            0.77671    1.11854   0.694  0.48789   
+## Mjobother            -0.37068    0.71864  -0.516  0.60631   
+## Mjobservices          0.77141    0.79944   0.965  0.33524   
+## Mjobteacher          -1.45523    1.04350  -1.395  0.16402   
+## Fjobhealth            0.50264    1.43071   0.351  0.72556   
+## Fjobother            -0.44303    1.01109  -0.438  0.66153   
+## Fjobservices         -0.28558    1.05170  -0.272  0.78614   
+## Fjobteacher           1.18454    1.28968   0.918  0.35900   
+## reasonhome            0.15104    0.55120   0.274  0.78422   
+## reasonother           0.90615    0.81174   1.116  0.26505   
+## reasonreputation      0.78970    0.57320   1.378  0.16917   
+## guardianmother       -0.06654    0.54705  -0.122  0.90326   
+## guardianother         0.74621    0.99921   0.747  0.45568   
+## traveltime           -0.33731    0.34177  -0.987  0.32435   
+## studytime             0.43921    0.28472   1.543  0.12382   
+## failures             -0.68669    0.59765  -1.149  0.25134   
+## schoolsupyes         -1.25886    0.66531  -1.892  0.05929 . 
+## famsupyes            -0.87494    0.47671  -1.835  0.06729 . 
+## paidyes               0.27979    0.47654   0.587  0.55749   
+## activitiesyes        -0.27894    0.44015  -0.634  0.52667   
+## nurseryyes           -0.12389    0.54987  -0.225  0.82188   
+## higheryes             1.48003    1.08166   1.368  0.17209   
+## internetyes           0.45356    0.61399   0.739  0.46058   
+## romanticyes          -1.16064    0.46719  -2.484  0.01345 * 
+## famrellow            -0.30748    0.51272  -0.600  0.54909   
+## freetimelow          -0.79441    0.47382  -1.677  0.09450 . 
+## gooutlow              1.33550    0.51112   2.613  0.00936 **
+## Dalclow              -0.21717    1.15359  -0.188  0.85079   
+## Walclow              -0.02676    0.67033  -0.040  0.96818   
+## healthlow             0.20864    0.44481   0.469  0.63932   
+## absences              0.09519    0.04094   2.325  0.02063 * 
+## first_gen_collegeyes -1.02075    0.79309  -1.287  0.19892   
+## high_freq_absentyes  -0.77063    0.81373  -0.947  0.34427   
+## failedyes            -2.27412    1.10329  -2.061  0.04002 * 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 4.082 on 352 degrees of freedom
+## Multiple R-squared:  0.2907, Adjusted R-squared:  0.2061 
+## F-statistic: 3.435 on 42 and 352 DF,  p-value: 1.498e-10</code></pre>
+<pre class="r"><code>step.model &lt;- stepAIC(base_lm, direction=&quot;both&quot;)</code></pre>
+<pre><code>## Start:  AIC=1151.72
+## G3 ~ (school + sex + age + address + famsize + Pstatus + Medu + 
+##     Fedu + Mjob + Fjob + reason + guardian + traveltime + studytime + 
+##     failures + schoolsup + famsup + paid + activities + nursery + 
+##     higher + internet + romantic + famrel + freetime + goout + 
+##     Dalc + Walc + health + absences + G1 + G2 + first_gen_college + 
+##     stable_learning_env + high_freq_absent + failed + ord_g3) - 
+##     G2 - G1 - ord_g3 - stable_learning_env
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - Fjob               4    58.108 5924.0 1147.6
+## - guardian           2    12.927 5878.8 1148.6
+## - reason             3    46.316 5912.2 1148.8
+## - Walc               1     0.027 5865.9 1149.7
+## - Dalc               1     0.591 5866.5 1149.8
+## - nursery            1     0.846 5866.7 1149.8
+## - Pstatus            1     3.582 5869.5 1150.0
+## - health             1     3.666 5869.6 1150.0
+## - Medu               1     4.832 5870.7 1150.0
+## - paid               1     5.745 5871.6 1150.1
+## - famrel             1     5.993 5871.9 1150.1
+## - activities         1     6.693 5872.6 1150.2
+## - internet           1     9.094 5875.0 1150.3
+## - Fedu               1    11.139 5877.0 1150.5
+## - address            1    12.668 5878.6 1150.6
+## - school             1    13.720 5879.6 1150.6
+## - high_freq_absent   1    14.946 5880.8 1150.7
+## - traveltime         1    16.232 5882.1 1150.8
+## - failures           1    22.000 5887.9 1151.2
+## - first_gen_college  1    27.605 5893.5 1151.6
+## &lt;none&gt;                           5865.9 1151.7
+## - higher             1    31.200 5897.1 1151.8
+## - age                1    32.006 5897.9 1151.9
+## - famsize            1    35.768 5901.7 1152.1
+## - studytime          1    39.656 5905.5 1152.4
+## - freetime           1    46.845 5912.7 1152.9
+## - famsup             1    56.136 5922.0 1153.5
+## - schoolsup          1    59.662 5925.6 1153.7
+## - failed             1    70.801 5936.7 1154.5
+## - absences           1    90.094 5956.0 1155.7
+## - Mjob               4   192.395 6058.3 1156.5
+## - romantic           1   102.848 5968.7 1156.6
+## - sex                1   103.661 5969.6 1156.6
+## - goout              1   113.773 5979.7 1157.3
+## 
+## Step:  AIC=1147.61
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Fedu + Mjob + reason + guardian + traveltime + studytime + 
+##     failures + schoolsup + famsup + paid + activities + nursery + 
+##     higher + internet + romantic + famrel + freetime + goout + 
+##     Dalc + Walc + health + absences + first_gen_college + high_freq_absent + 
+##     failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - guardian           2    10.384 5934.4 1144.3
+## - reason             3    59.440 5983.4 1145.6
+## - Walc               1     0.559 5924.6 1145.7
+## - nursery            1     0.970 5925.0 1145.7
+## - Dalc               1     1.241 5925.2 1145.7
+## - health             1     2.560 5926.6 1145.8
+## - Fedu               1     2.588 5926.6 1145.8
+## - paid               1     2.969 5927.0 1145.8
+## - Medu               1     3.297 5927.3 1145.8
+## - famrel             1     4.231 5928.2 1145.9
+## - internet           1     5.645 5929.6 1146.0
+## - Pstatus            1     5.731 5929.7 1146.0
+## - activities         1    10.513 5934.5 1146.3
+## - school             1    11.795 5935.8 1146.4
+## - address            1    14.753 5938.8 1146.6
+## - traveltime         1    14.820 5938.8 1146.6
+## - high_freq_absent   1    18.403 5942.4 1146.8
+## - failures           1    22.209 5946.2 1147.1
+## &lt;none&gt;                           5924.0 1147.6
+## - age                1    30.631 5954.6 1147.7
+## - higher             1    30.845 5954.8 1147.7
+## - famsize            1    32.187 5956.2 1147.8
+## - first_gen_college  1    34.350 5958.4 1147.9
+## - studytime          1    43.941 5967.9 1148.5
+## - schoolsup          1    49.517 5973.5 1148.9
+## - freetime           1    50.138 5974.1 1148.9
+## - famsup             1    53.020 5977.0 1149.1
+## - failed             1    66.563 5990.6 1150.0
+## - Mjob               4   180.518 6104.5 1151.5
+## + Fjob               4    58.108 5865.9 1151.7
+## - absences           1    94.253 6018.3 1151.8
+## - romantic           1    94.936 6018.9 1151.9
+## - sex                1   105.155 6029.2 1152.6
+## - goout              1   110.854 6034.9 1152.9
+## 
+## Step:  AIC=1144.3
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Fedu + Mjob + reason + traveltime + studytime + failures + 
+##     schoolsup + famsup + paid + activities + nursery + higher + 
+##     internet + romantic + famrel + freetime + goout + Dalc + 
+##     Walc + health + absences + first_gen_college + high_freq_absent + 
+##     failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - reason             3    60.268 5994.7 1142.3
+## - Walc               1     1.015 5935.4 1142.4
+## - Dalc               1     1.194 5935.6 1142.4
+## - Fedu               1     1.464 5935.8 1142.4
+## - Medu               1     2.315 5936.7 1142.5
+## - nursery            1     2.354 5936.7 1142.5
+## - paid               1     3.146 5937.5 1142.5
+## - health             1     3.681 5938.1 1142.5
+## - famrel             1     4.627 5939.0 1142.6
+## - internet           1     5.511 5939.9 1142.7
+## - Pstatus            1     6.799 5941.2 1142.8
+## - school             1    10.510 5944.9 1143.0
+## - activities         1    10.605 5945.0 1143.0
+## - traveltime         1    12.005 5946.4 1143.1
+## - high_freq_absent   1    18.082 5952.5 1143.5
+## - address            1    19.026 5953.4 1143.6
+## - failures           1    21.806 5956.2 1143.8
+## - age                1    23.499 5957.9 1143.9
+## &lt;none&gt;                           5934.4 1144.3
+## - famsize            1    30.756 5965.1 1144.3
+## - first_gen_college  1    33.861 5968.2 1144.5
+## - higher             1    35.225 5969.6 1144.6
+## - studytime          1    47.430 5981.8 1145.5
+## - schoolsup          1    48.694 5983.1 1145.5
+## - famsup             1    51.296 5985.7 1145.7
+## - freetime           1    56.659 5991.0 1146.1
+## - failed             1    61.246 5995.6 1146.4
+## + guardian           2    10.384 5924.0 1147.6
+## - Mjob               4   183.657 6118.0 1148.3
+## - romantic           1    92.824 6027.2 1148.4
+## + Fjob               4    55.565 5878.8 1148.6
+## - absences           1    95.558 6029.9 1148.6
+## - sex                1   107.385 6041.8 1149.4
+## - goout              1   118.595 6053.0 1150.1
+## 
+## Step:  AIC=1142.3
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Fedu + Mjob + traveltime + studytime + failures + schoolsup + 
+##     famsup + paid + activities + nursery + higher + internet + 
+##     romantic + famrel + freetime + goout + Dalc + Walc + health + 
+##     absences + first_gen_college + high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - Walc               1     1.317 5996.0 1140.4
+## - Fedu               1     1.469 5996.1 1140.4
+## - Dalc               1     1.838 5996.5 1140.4
+## - nursery            1     1.951 5996.6 1140.4
+## - Medu               1     3.918 5998.6 1140.5
+## - internet           1     4.868 5999.5 1140.6
+## - activities         1     6.230 6000.9 1140.7
+## - famrel             1     6.241 6000.9 1140.7
+## - Pstatus            1     6.498 6001.2 1140.7
+## - health             1     6.870 6001.5 1140.8
+## - paid               1     7.053 6001.7 1140.8
+## - school             1    10.560 6005.2 1141.0
+## - address            1    12.612 6007.3 1141.1
+## - traveltime         1    13.824 6008.5 1141.2
+## - high_freq_absent   1    14.302 6009.0 1141.2
+## - age                1    25.650 6020.3 1142.0
+## - failures           1    27.179 6021.8 1142.1
+## - higher             1    28.065 6022.7 1142.1
+## - famsize            1    29.828 6024.5 1142.3
+## &lt;none&gt;                           5994.7 1142.3
+## - first_gen_college  1    30.439 6025.1 1142.3
+## - schoolsup          1    48.574 6043.2 1143.5
+## - studytime          1    50.699 6045.4 1143.6
+## - famsup             1    54.155 6048.8 1143.8
+## - failed             1    55.751 6050.4 1144.0
+## - freetime           1    56.307 6051.0 1144.0
+## + reason             3    60.268 5934.4 1144.3
+## + guardian           2    11.211 5983.4 1145.6
+## + Fjob               4    68.895 5925.8 1145.7
+## - romantic           1    91.877 6086.5 1146.3
+## - absences           1    96.791 6091.4 1146.6
+## - sex                1    99.491 6094.1 1146.8
+## - Mjob               4   216.467 6211.1 1148.3
+## - goout              1   126.588 6121.2 1148.5
+## 
+## Step:  AIC=1140.38
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Fedu + Mjob + traveltime + studytime + failures + schoolsup + 
+##     famsup + paid + activities + nursery + higher + internet + 
+##     romantic + famrel + freetime + goout + Dalc + health + absences + 
+##     first_gen_college + high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - Dalc               1     1.109 5997.1 1138.5
+## - Fedu               1     1.644 5997.6 1138.5
+## - nursery            1     1.737 5997.7 1138.5
+## - Medu               1     4.078 6000.0 1138.7
+## - internet           1     4.884 6000.9 1138.7
+## - activities         1     6.130 6002.1 1138.8
+## - Pstatus            1     6.137 6002.1 1138.8
+## - paid               1     6.727 6002.7 1138.8
+## - famrel             1     7.078 6003.0 1138.8
+## - health             1     7.451 6003.4 1138.9
+## - school             1    11.132 6007.1 1139.1
+## - address            1    13.102 6009.1 1139.2
+## - traveltime         1    14.450 6010.4 1139.3
+## - high_freq_absent   1    14.481 6010.5 1139.3
+## - age                1    24.951 6020.9 1140.0
+## - failures           1    27.554 6023.5 1140.2
+## - higher             1    28.788 6024.8 1140.3
+## - famsize            1    29.376 6025.3 1140.3
+## &lt;none&gt;                           5996.0 1140.4
+## - first_gen_college  1    30.478 6026.4 1140.4
+## - schoolsup          1    47.915 6043.9 1141.5
+## - studytime          1    51.565 6047.5 1141.8
+## - famsup             1    53.086 6049.1 1141.9
+## - failed             1    55.730 6051.7 1142.0
+## - freetime           1    57.401 6053.4 1142.2
+## + Walc               1     1.317 5994.7 1142.3
+## + reason             3    60.569 5935.4 1142.4
+## + guardian           2    11.743 5984.2 1143.6
+## + Fjob               4    70.097 5925.9 1143.7
+## - romantic           1    90.982 6087.0 1144.3
+## - absences           1    95.639 6091.6 1144.6
+## - sex                1    99.432 6095.4 1144.9
+## - Mjob               4   217.116 6213.1 1146.4
+## - goout              1   159.887 6155.9 1148.8
+## 
+## Step:  AIC=1138.46
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Fedu + Mjob + traveltime + studytime + failures + schoolsup + 
+##     famsup + paid + activities + nursery + higher + internet + 
+##     romantic + famrel + freetime + goout + health + absences + 
+##     first_gen_college + high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - Fedu               1     1.590 5998.7 1136.6
+## - nursery            1     2.133 5999.2 1136.6
+## - Medu               1     4.304 6001.4 1136.7
+## - internet           1     4.928 6002.0 1136.8
+## - activities         1     6.292 6003.4 1136.9
+## - Pstatus            1     6.388 6003.5 1136.9
+## - famrel             1     6.962 6004.0 1136.9
+## - health             1     7.081 6004.2 1136.9
+## - paid               1     7.849 6004.9 1137.0
+## - school             1    11.411 6008.5 1137.2
+## - address            1    13.515 6010.6 1137.3
+## - high_freq_absent   1    13.555 6010.6 1137.3
+## - traveltime         1    13.601 6010.7 1137.3
+## - age                1    24.411 6021.5 1138.1
+## - failures           1    27.503 6024.6 1138.3
+## - higher             1    29.028 6026.1 1138.4
+## - famsize            1    29.269 6026.3 1138.4
+## - first_gen_college  1    30.243 6027.3 1138.4
+## &lt;none&gt;                           5997.1 1138.5
+## - schoolsup          1    47.036 6044.1 1139.5
+## - studytime          1    51.478 6048.6 1139.8
+## - famsup             1    52.900 6050.0 1139.9
+## - failed             1    56.066 6053.1 1140.1
+## - freetime           1    58.687 6055.8 1140.3
+## + Dalc               1     1.109 5996.0 1140.4
+## + Walc               1     0.588 5996.5 1140.4
+## + reason             3    60.996 5936.1 1140.4
+## + guardian           2    11.494 5985.6 1141.7
+## + Fjob               4    70.556 5926.5 1141.8
+## - romantic           1    89.994 6087.1 1142.3
+## - absences           1    94.651 6091.7 1142.6
+## - sex                1   106.450 6103.5 1143.4
+## - Mjob               4   217.084 6214.2 1144.5
+## - goout              1   158.780 6155.9 1146.8
+## 
+## Step:  AIC=1136.56
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Mjob + traveltime + studytime + failures + schoolsup + famsup + 
+##     paid + activities + nursery + higher + internet + romantic + 
+##     famrel + freetime + goout + health + absences + first_gen_college + 
+##     high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - nursery            1     2.229 6000.9 1134.7
+## - Medu               1     3.471 6002.1 1134.8
+## - internet           1     4.751 6003.4 1134.9
+## - Pstatus            1     6.265 6004.9 1135.0
+## - activities         1     6.509 6005.2 1135.0
+## - famrel             1     6.807 6005.5 1135.0
+## - health             1     7.276 6005.9 1135.0
+## - paid               1     8.368 6007.0 1135.1
+## - school             1    10.964 6009.6 1135.3
+## - traveltime         1    12.621 6011.3 1135.4
+## - high_freq_absent   1    12.860 6011.5 1135.4
+## - address            1    13.704 6012.4 1135.5
+## - age                1    24.490 6023.2 1136.2
+## - failures           1    26.412 6025.1 1136.3
+## - higher             1    28.308 6027.0 1136.4
+## - famsize            1    29.765 6028.4 1136.5
+## - first_gen_college  1    30.436 6029.1 1136.6
+## &lt;none&gt;                           5998.7 1136.6
+## - schoolsup          1    47.826 6046.5 1137.7
+## - studytime          1    54.191 6052.9 1138.1
+## - famsup             1    56.277 6054.9 1138.2
+## - failed             1    57.385 6056.1 1138.3
+## + Fedu               1     1.590 5997.1 1138.5
+## + Dalc               1     1.055 5997.6 1138.5
+## + Walc               1     0.713 5998.0 1138.5
+## + reason             3    61.019 5937.6 1138.5
+## - freetime           1    60.685 6059.4 1138.5
+## + guardian           2    10.228 5988.4 1139.9
+## - romantic           1    89.702 6088.4 1140.4
+## + Fjob               4    61.291 5937.4 1140.5
+## - absences           1    93.526 6092.2 1140.7
+## - sex                1   106.050 6104.7 1141.5
+## - Mjob               4   216.236 6214.9 1142.5
+## - goout              1   161.916 6160.6 1145.1
+## 
+## Step:  AIC=1134.71
+## G3 ~ school + sex + age + address + famsize + Pstatus + Medu + 
+##     Mjob + traveltime + studytime + failures + schoolsup + famsup + 
+##     paid + activities + higher + internet + romantic + famrel + 
+##     freetime + goout + health + absences + first_gen_college + 
+##     high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - Medu               1     3.280 6004.2 1132.9
+## - internet           1     5.167 6006.1 1133.0
+## - Pstatus            1     5.949 6006.8 1133.1
+## - activities         1     6.240 6007.1 1133.1
+## - famrel             1     6.524 6007.4 1133.1
+## - health             1     7.491 6008.4 1133.2
+## - paid               1     7.883 6008.8 1133.2
+## - school             1    11.399 6012.3 1133.5
+## - traveltime         1    12.798 6013.7 1133.5
+## - high_freq_absent   1    13.147 6014.0 1133.6
+## - address            1    13.559 6014.5 1133.6
+## - age                1    24.023 6024.9 1134.3
+## - failures           1    26.018 6026.9 1134.4
+## - famsize            1    28.442 6029.3 1134.6
+## - higher             1    28.613 6029.5 1134.6
+## - first_gen_college  1    29.504 6030.4 1134.6
+## &lt;none&gt;                           6000.9 1134.7
+## - schoolsup          1    48.791 6049.7 1135.9
+## - studytime          1    52.898 6053.8 1136.2
+## - famsup             1    56.130 6057.0 1136.4
+## - failed             1    57.614 6058.5 1136.5
+## + nursery            1     2.229 5998.7 1136.6
+## + Fedu               1     1.686 5999.2 1136.6
+## + Dalc               1     1.451 5999.4 1136.6
+## + Walc               1     0.466 6000.4 1136.7
+## + reason             3    60.661 5940.2 1136.7
+## - freetime           1    61.848 6062.7 1136.8
+## + guardian           2    11.467 5989.4 1138.0
+## - romantic           1    90.641 6091.5 1138.6
+## + Fjob               4    61.040 5939.9 1138.7
+## - absences           1    93.825 6094.7 1138.8
+## - sex                1   105.719 6106.6 1139.6
+## - Mjob               4   215.495 6216.4 1140.6
+## - goout              1   163.450 6164.3 1143.3
+## 
+## Step:  AIC=1132.92
+## G3 ~ school + sex + age + address + famsize + Pstatus + Mjob + 
+##     traveltime + studytime + failures + schoolsup + famsup + 
+##     paid + activities + higher + internet + romantic + famrel + 
+##     freetime + goout + health + absences + first_gen_college + 
+##     high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - internet           1     4.974 6009.2 1131.2
+## - activities         1     6.204 6010.4 1131.3
+## - Pstatus            1     6.921 6011.1 1131.4
+## - famrel             1     7.053 6011.2 1131.4
+## - paid               1     7.813 6012.0 1131.4
+## - health             1     8.650 6012.8 1131.5
+## - school             1    11.485 6015.7 1131.7
+## - high_freq_absent   1    12.445 6016.6 1131.7
+## - traveltime         1    13.540 6017.7 1131.8
+## - address            1    13.940 6018.1 1131.8
+## - age                1    24.508 6028.7 1132.5
+## - failures           1    26.253 6030.4 1132.7
+## - famsize            1    26.629 6030.8 1132.7
+## - higher             1    28.529 6032.7 1132.8
+## &lt;none&gt;                           6004.2 1132.9
+## - schoolsup          1    49.290 6053.5 1134.2
+## - famsup             1    54.249 6058.4 1134.5
+## - studytime          1    55.376 6059.6 1134.5
+## + Medu               1     3.280 6000.9 1134.7
+## + nursery            1     2.038 6002.1 1134.8
+## - failed             1    59.069 6063.2 1134.8
+## + reason             3    62.168 5942.0 1134.8
+## + Dalc               1     1.674 6002.5 1134.8
+## + Fedu               1     0.838 6003.3 1134.9
+## - freetime           1    60.465 6064.6 1134.9
+## + Walc               1     0.486 6003.7 1134.9
+## - first_gen_college  1    72.647 6076.8 1135.7
+## + guardian           2    10.588 5993.6 1136.2
+## - romantic           1    89.697 6093.9 1136.8
+## + Fjob               4    60.982 5943.2 1136.9
+## - absences           1    97.391 6101.6 1137.3
+## - sex                1   108.378 6112.6 1138.0
+## - Mjob               4   218.135 6222.3 1139.0
+## - goout              1   161.253 6165.4 1141.4
+## 
+## Step:  AIC=1131.25
+## G3 ~ school + sex + age + address + famsize + Pstatus + Mjob + 
+##     traveltime + studytime + failures + schoolsup + famsup + 
+##     paid + activities + higher + romantic + famrel + freetime + 
+##     goout + health + absences + first_gen_college + high_freq_absent + 
+##     failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - Pstatus            1     5.758 6014.9 1129.6
+## - activities         1     6.067 6015.2 1129.7
+## - famrel             1     7.719 6016.9 1129.8
+## - paid               1     9.030 6018.2 1129.8
+## - health             1     9.542 6018.7 1129.9
+## - school             1    11.340 6020.5 1130.0
+## - high_freq_absent   1    11.969 6021.1 1130.0
+## - traveltime         1    13.664 6022.8 1130.2
+## - address            1    16.917 6026.1 1130.4
+## - failures           1    25.245 6034.4 1130.9
+## - famsize            1    26.447 6035.6 1131.0
+## - age                1    26.726 6035.9 1131.0
+## - higher             1    27.484 6036.6 1131.0
+## &lt;none&gt;                           6009.2 1131.2
+## - schoolsup          1    49.694 6058.8 1132.5
+## - famsup             1    53.344 6062.5 1132.7
+## + internet           1     4.974 6004.2 1132.9
+## - studytime          1    57.740 6066.9 1133.0
+## + Medu               1     3.088 6006.1 1133.0
+## + nursery            1     2.435 6006.7 1133.1
+## + Dalc               1     1.768 6007.4 1133.1
+## - freetime           1    59.458 6068.6 1133.1
+## + reason             3    61.415 5947.7 1133.2
+## + Fedu               1     0.735 6008.4 1133.2
+## + Walc               1     0.461 6008.7 1133.2
+## - failed             1    61.239 6070.4 1133.3
+## - first_gen_college  1    73.519 6082.7 1134.0
+## + guardian           2    10.612 5998.5 1134.5
+## - romantic           1    86.466 6095.6 1134.9
+## + Fjob               4    57.783 5951.4 1135.4
+## - absences           1   100.838 6110.0 1135.8
+## - sex                1   111.435 6120.6 1136.5
+## - Mjob               4   221.815 6231.0 1137.6
+## - goout              1   159.583 6168.7 1139.6
+## 
+## Step:  AIC=1129.63
+## G3 ~ school + sex + age + address + famsize + Mjob + traveltime + 
+##     studytime + failures + schoolsup + famsup + paid + activities + 
+##     higher + romantic + famrel + freetime + goout + health + 
+##     absences + first_gen_college + high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - famrel             1     7.528 6022.4 1128.1
+## - activities         1     7.590 6022.5 1128.1
+## - paid               1     8.219 6023.1 1128.2
+## - health             1     9.145 6024.1 1128.2
+## - school             1    10.994 6025.9 1128.3
+## - high_freq_absent   1    12.063 6027.0 1128.4
+## - traveltime         1    14.038 6028.9 1128.5
+## - address            1    16.902 6031.8 1128.7
+## - failures           1    24.055 6039.0 1129.2
+## - age                1    27.173 6042.1 1129.4
+## - higher             1    28.849 6043.8 1129.5
+## &lt;none&gt;                           6014.9 1129.6
+## - famsize            1    31.277 6046.2 1129.7
+## - schoolsup          1    48.815 6063.7 1130.8
+## - famsup             1    53.992 6068.9 1131.2
+## + Pstatus            1     5.758 6009.2 1131.2
+## - freetime           1    56.915 6071.8 1131.3
+## + Medu               1     3.970 6010.9 1131.4
+## + internet           1     3.812 6011.1 1131.4
+## - studytime          1    57.652 6072.6 1131.4
+## + Dalc               1     2.052 6012.9 1131.5
+## + nursery            1     2.034 6012.9 1131.5
+## + reason             3    61.467 5953.4 1131.6
+## + Fedu               1     0.587 6014.3 1131.6
+## + Walc               1     0.251 6014.7 1131.6
+## - failed             1    63.224 6078.1 1131.8
+## - first_gen_college  1    79.217 6094.1 1132.8
+## + guardian           2    11.389 6003.5 1132.9
+## - romantic           1    85.462 6100.4 1133.2
+## + Fjob               4    59.633 5955.3 1133.7
+## - absences           1   106.295 6121.2 1134.5
+## - sex                1   111.160 6126.1 1134.9
+## - Mjob               4   225.315 6240.2 1136.2
+## - goout              1   158.110 6173.0 1137.9
+## 
+## Step:  AIC=1128.12
+## G3 ~ school + sex + age + address + famsize + Mjob + traveltime + 
+##     studytime + failures + schoolsup + famsup + paid + activities + 
+##     higher + romantic + freetime + goout + health + absences + 
+##     first_gen_college + high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - activities         1     7.435 6029.9 1126.6
+## - health             1     7.584 6030.0 1126.6
+## - paid               1     9.149 6031.6 1126.7
+## - school             1     9.664 6032.1 1126.8
+## - traveltime         1    13.537 6036.0 1127.0
+## - high_freq_absent   1    14.005 6036.4 1127.0
+## - address            1    17.905 6040.3 1127.3
+## - age                1    24.406 6046.8 1127.7
+## - failures           1    25.641 6048.1 1127.8
+## - higher             1    29.910 6052.3 1128.1
+## &lt;none&gt;                           6022.4 1128.1
+## - famsize            1    31.152 6053.6 1128.2
+## - schoolsup          1    48.344 6070.8 1129.3
+## - famsup             1    53.199 6075.6 1129.6
+## + famrel             1     7.528 6014.9 1129.6
+## + Pstatus            1     5.567 6016.9 1129.8
+## + Medu               1     4.536 6017.9 1129.8
+## + internet           1     4.405 6018.0 1129.8
+## + reason             3    63.460 5959.0 1129.9
+## + Dalc               1     1.879 6020.6 1130.0
+## + nursery            1     1.761 6020.7 1130.0
+## - studytime          1    60.428 6082.9 1130.1
+## + Walc               1     0.714 6021.7 1130.1
+## + Fedu               1     0.445 6022.0 1130.1
+## - freetime           1    61.557 6084.0 1130.1
+## - failed             1    61.850 6084.3 1130.2
+## + guardian           2    12.164 6010.3 1131.3
+## - first_gen_college  1    80.105 6102.5 1131.3
+## - romantic           1    85.144 6107.6 1131.7
+## + Fjob               4    57.663 5964.8 1132.3
+## - absences           1   108.680 6131.1 1133.2
+## - sex                1   113.609 6136.0 1133.5
+## - Mjob               4   225.936 6248.4 1134.7
+## - goout              1   156.890 6179.3 1136.3
+## 
+## Step:  AIC=1126.61
+## G3 ~ school + sex + age + address + famsize + Mjob + traveltime + 
+##     studytime + failures + schoolsup + famsup + paid + higher + 
+##     romantic + freetime + goout + health + absences + first_gen_college + 
+##     high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - health             1     7.995 6037.9 1125.1
+## - paid               1     9.999 6039.9 1125.3
+## - school             1    11.483 6041.4 1125.4
+## - high_freq_absent   1    13.124 6043.0 1125.5
+## - traveltime         1    13.727 6043.6 1125.5
+## - address            1    20.017 6049.9 1125.9
+## - age                1    23.452 6053.3 1126.1
+## - failures           1    24.299 6054.2 1126.2
+## - higher             1    27.659 6057.5 1126.4
+## &lt;none&gt;                           6029.9 1126.6
+## - famsize            1    31.219 6061.1 1126.7
+## - schoolsup          1    50.051 6079.9 1127.9
+## - famsup             1    51.843 6081.7 1128.0
+## + activities         1     7.435 6022.4 1128.1
+## + famrel             1     7.372 6022.5 1128.1
+## + Pstatus            1     7.052 6022.8 1128.2
+## - studytime          1    56.694 6086.6 1128.3
+## + Medu               1     4.622 6025.3 1128.3
+## + internet           1     4.114 6025.8 1128.3
+## + Dalc               1     2.101 6027.8 1128.5
+## + nursery            1     1.458 6028.4 1128.5
+## + Walc               1     0.583 6029.3 1128.6
+## + Fedu               1     0.555 6029.3 1128.6
+## - freetime           1    61.065 6090.9 1128.6
+## + reason             3    58.641 5971.2 1128.8
+## - failed             1    63.924 6093.8 1128.8
+## - first_gen_college  1    78.223 6108.1 1129.7
+## + guardian           2    12.095 6017.8 1129.8
+## - romantic           1    88.630 6118.5 1130.4
+## + Fjob               4    60.550 5969.3 1130.6
+## - absences           1   107.390 6137.3 1131.6
+## - sex                1   108.674 6138.5 1131.7
+## - Mjob               4   225.207 6255.1 1133.1
+## - goout              1   161.707 6191.6 1135.1
+## 
+## Step:  AIC=1125.13
+## G3 ~ school + sex + age + address + famsize + Mjob + traveltime + 
+##     studytime + failures + schoolsup + famsup + paid + higher + 
+##     romantic + freetime + goout + absences + first_gen_college + 
+##     high_freq_absent + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - paid               1    10.716 6048.6 1123.8
+## - high_freq_absent   1    11.598 6049.5 1123.9
+## - school             1    12.514 6050.4 1124.0
+## - traveltime         1    13.912 6051.8 1124.0
+## - address            1    21.600 6059.5 1124.5
+## - age                1    22.034 6059.9 1124.6
+## - failures           1    23.340 6061.2 1124.7
+## - higher             1    27.393 6065.3 1124.9
+## &lt;none&gt;                           6037.9 1125.1
+## - famsize            1    31.772 6069.6 1125.2
+## - schoolsup          1    48.738 6086.6 1126.3
+## + health             1     7.995 6029.9 1126.6
+## + activities         1     7.846 6030.0 1126.6
+## - famsup             1    53.732 6091.6 1126.6
+## + Pstatus            1     6.708 6031.2 1126.7
+## + Medu               1     5.799 6032.1 1126.8
+## + famrel             1     5.787 6032.1 1126.8
+## + internet           1     4.816 6033.1 1126.8
+## - freetime           1    58.585 6096.5 1127.0
+## - studytime          1    59.536 6097.4 1127.0
+## + nursery            1     1.671 6036.2 1127.0
+## + Dalc               1     1.623 6036.2 1127.0
+## + reason             3    61.887 5976.0 1127.1
+## + Walc               1     1.035 6036.8 1127.1
+## + Fedu               1     0.606 6037.3 1127.1
+## - failed             1    66.411 6104.3 1127.5
+## + guardian           2    14.111 6023.8 1128.2
+## - first_gen_college  1    78.383 6116.3 1128.2
+## - romantic           1    90.039 6127.9 1129.0
+## + Fjob               4    58.303 5979.6 1129.3
+## - sex                1   105.710 6143.6 1130.0
+## - absences           1   105.891 6143.8 1130.0
+## - Mjob               4   220.425 6258.3 1131.3
+## - goout              1   165.403 6203.3 1133.8
+## 
+## Step:  AIC=1123.83
+## G3 ~ school + sex + age + address + famsize + Mjob + traveltime + 
+##     studytime + failures + schoolsup + famsup + higher + romantic + 
+##     freetime + goout + absences + first_gen_college + high_freq_absent + 
+##     failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - high_freq_absent   1    11.893 6060.5 1122.6
+## - school             1    13.648 6062.2 1122.7
+## - traveltime         1    14.707 6063.3 1122.8
+## - age                1    20.993 6069.6 1123.2
+## - address            1    22.351 6070.9 1123.3
+## - failures           1    23.406 6072.0 1123.4
+## &lt;none&gt;                           6048.6 1123.8
+## - higher             1    31.507 6080.1 1123.9
+## - famsize            1    32.108 6080.7 1123.9
+## - famsup             1    45.157 6093.7 1124.8
+## - schoolsup          1    50.481 6099.1 1125.1
+## + paid               1    10.716 6037.9 1125.1
+## + activities         1     8.770 6039.8 1125.3
+## + health             1     8.713 6039.9 1125.3
+## + famrel             1     6.604 6042.0 1125.4
+## + reason             3    67.181 5981.4 1125.4
+## + internet           1     6.288 6042.3 1125.4
+## + Pstatus            1     5.780 6042.8 1125.5
+## + Medu               1     5.668 6042.9 1125.5
+## - freetime           1    57.147 6105.7 1125.5
+## + Dalc               1     3.067 6045.5 1125.6
+## + nursery            1     1.236 6047.3 1125.8
+## + Fedu               1     0.985 6047.6 1125.8
+## + Walc               1     0.555 6048.0 1125.8
+## - studytime          1    64.142 6112.7 1126.0
+## - failed             1    70.758 6119.3 1126.4
+## - first_gen_college  1    77.297 6125.9 1126.8
+## + guardian           2    14.405 6034.2 1126.9
+## - romantic           1    89.248 6137.8 1127.6
+## + Fjob               4    52.599 5996.0 1128.4
+## - sex                1   102.339 6150.9 1128.5
+## - absences           1   107.768 6156.4 1128.8
+## - Mjob               4   219.664 6268.2 1129.9
+## - goout              1   160.633 6209.2 1132.2
+## 
+## Step:  AIC=1122.61
+## G3 ~ school + sex + age + address + famsize + Mjob + traveltime + 
+##     studytime + failures + schoolsup + famsup + higher + romantic + 
+##     freetime + goout + absences + first_gen_college + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - traveltime         1    13.259 6073.7 1121.5
+## - school             1    14.199 6074.7 1121.5
+## - address            1    19.683 6080.2 1121.9
+## - failures           1    23.090 6083.6 1122.1
+## - age                1    24.292 6084.8 1122.2
+## - higher             1    27.693 6088.2 1122.4
+## - famsize            1    29.953 6090.4 1122.6
+## &lt;none&gt;                           6060.5 1122.6
+## - famsup             1    46.840 6107.3 1123.7
+## - schoolsup          1    48.944 6109.4 1123.8
+## + high_freq_absent   1    11.893 6048.6 1123.8
+## + paid               1    11.012 6049.5 1123.9
+## + famrel             1     8.447 6052.0 1124.1
+## + activities         1     7.823 6052.7 1124.1
+## - freetime           1    54.175 6114.7 1124.1
+## + health             1     7.106 6053.4 1124.2
+## + internet           1     5.790 6054.7 1124.2
+## + Pstatus            1     5.784 6054.7 1124.2
+## + Medu               1     4.718 6055.8 1124.3
+## + reason             3    63.156 5997.3 1124.5
+## + nursery            1     1.403 6059.1 1124.5
+## + Dalc               1     1.390 6059.1 1124.5
+## + Walc               1     0.944 6059.5 1124.5
+## + Fedu               1     0.522 6060.0 1124.6
+## - studytime          1    67.327 6127.8 1125.0
+## - first_gen_college  1    73.000 6133.5 1125.3
+## - failed             1    74.711 6135.2 1125.5
+## + guardian           2    14.839 6045.6 1125.6
+## - romantic           1    90.329 6150.8 1126.5
+## + Fjob               4    54.936 6005.5 1127.0
+## - sex                1   101.693 6162.2 1127.2
+## - Mjob               4   214.393 6274.9 1128.3
+## - absences           1   128.452 6188.9 1128.9
+## - goout              1   162.672 6223.2 1131.1
+## 
+## Step:  AIC=1121.47
+## G3 ~ school + sex + age + address + famsize + Mjob + studytime + 
+##     failures + schoolsup + famsup + higher + romantic + freetime + 
+##     goout + absences + first_gen_college + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - school             1    10.285 6084.0 1120.1
+## - age                1    22.293 6096.0 1120.9
+## - failures           1    25.256 6099.0 1121.1
+## - famsize            1    26.818 6100.6 1121.2
+## - higher             1    28.844 6102.6 1121.3
+## &lt;none&gt;                           6073.7 1121.5
+## - address            1    31.581 6105.3 1121.5
+## + traveltime         1    13.259 6060.5 1122.6
+## - schoolsup          1    49.034 6122.8 1122.7
+## + paid               1    11.759 6062.0 1122.7
+## - famsup             1    50.943 6124.7 1122.8
+## + high_freq_absent   1    10.446 6063.3 1122.8
+## + activities         1     8.106 6065.6 1123.0
+## + famrel             1     7.816 6065.9 1123.0
+## + health             1     7.390 6066.3 1123.0
+## - freetime           1    55.528 6129.3 1123.1
+## + Pstatus            1     6.136 6067.6 1123.1
+## + internet           1     5.946 6067.8 1123.1
+## + Medu               1     5.657 6068.1 1123.1
+## + reason             3    65.406 6008.3 1123.2
+## + Walc               1     1.643 6072.1 1123.4
+## + nursery            1     1.504 6072.2 1123.4
+## + Dalc               1     0.543 6073.2 1123.4
+## + Fedu               1     0.055 6073.7 1123.5
+## - studytime          1    71.853 6145.6 1124.1
+## - failed             1    71.972 6145.7 1124.1
+## - first_gen_college  1    74.364 6148.1 1124.3
+## + guardian           2    12.487 6061.3 1124.7
+## - romantic           1    92.108 6165.8 1125.4
+## - sex                1    98.165 6171.9 1125.8
+## + Fjob               4    55.338 6018.4 1125.9
+## - Mjob               4   221.092 6294.8 1127.6
+## - absences           1   128.487 6202.2 1127.7
+## - goout              1   169.495 6243.2 1130.3
+## 
+## Step:  AIC=1120.14
+## G3 ~ sex + age + address + famsize + Mjob + studytime + failures + 
+##     schoolsup + famsup + higher + romantic + freetime + goout + 
+##     absences + first_gen_college + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - age                1    14.853 6098.9 1119.1
+## - address            1    24.577 6108.6 1119.7
+## - failures           1    26.417 6110.4 1119.8
+## - famsize            1    29.156 6113.2 1120.0
+## &lt;none&gt;                           6084.0 1120.1
+## - higher             1    31.483 6115.5 1120.2
+## + paid               1    12.688 6071.3 1121.3
+## - schoolsup          1    50.582 6134.6 1121.4
+## + high_freq_absent   1    11.091 6072.9 1121.4
+## + school             1    10.285 6073.7 1121.5
+## + activities         1     9.919 6074.1 1121.5
+## + traveltime         1     9.345 6074.7 1121.5
+## + health             1     8.255 6075.8 1121.6
+## + famrel             1     6.463 6077.6 1121.7
+## + Pstatus            1     5.867 6078.2 1121.8
+## + internet           1     5.813 6078.2 1121.8
+## - famsup             1    56.178 6140.2 1121.8
+## + Medu               1     5.582 6078.4 1121.8
+## - freetime           1    57.740 6141.8 1121.9
+## + reason             3    65.002 6019.0 1121.9
+## + Walc               1     1.832 6082.2 1122.0
+## + nursery            1     1.823 6082.2 1122.0
+## + Dalc               1     0.903 6083.1 1122.1
+## + Fedu               1     0.023 6084.0 1122.1
+## - studytime          1    65.829 6149.9 1122.4
+## - failed             1    71.247 6155.3 1122.7
+## - first_gen_college  1    73.351 6157.4 1122.9
+## + guardian           2    11.176 6072.8 1123.4
+## - romantic           1    89.829 6173.9 1123.9
+## - sex                1    93.837 6177.9 1124.2
+## + Fjob               4    56.297 6027.7 1124.5
+## - absences           1   119.451 6203.5 1125.8
+## - Mjob               4   218.306 6302.3 1126.1
+## - goout              1   173.743 6257.8 1129.3
+## 
+## Step:  AIC=1119.1
+## G3 ~ sex + address + famsize + Mjob + studytime + failures + 
+##     schoolsup + famsup + higher + romantic + freetime + goout + 
+##     absences + first_gen_college + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - failures           1    25.369 6124.2 1118.7
+## - famsize            1    28.020 6126.9 1118.9
+## - address            1    29.428 6128.3 1119.0
+## &lt;none&gt;                           6098.9 1119.1
+## - higher             1    37.542 6136.4 1119.5
+## - schoolsup          1    39.918 6138.8 1119.7
+## + age                1    14.853 6084.0 1120.1
+## + high_freq_absent   1    13.491 6085.4 1120.2
+## + paid               1    11.222 6087.7 1120.4
+## - famsup             1    51.416 6150.3 1120.4
+## + traveltime         1     9.314 6089.6 1120.5
+## + activities         1     7.916 6091.0 1120.6
+## + internet           1     7.349 6091.5 1120.6
+## + health             1     6.386 6092.5 1120.7
+## + Pstatus            1     6.330 6092.5 1120.7
+## + Medu               1     5.734 6093.1 1120.7
+## - freetime           1    56.506 6155.4 1120.8
+## + famrel             1     5.089 6093.8 1120.8
+## + reason             3    65.484 6033.4 1120.8
+## + school             1     2.845 6096.0 1120.9
+## + nursery            1     1.437 6097.4 1121.0
+## + Walc               1     1.141 6097.7 1121.0
+## + Dalc               1     0.330 6098.5 1121.1
+## + Fedu               1     0.032 6098.8 1121.1
+## - studytime          1    62.167 6161.0 1121.1
+## - first_gen_college  1    80.992 6179.9 1122.3
+## - failed             1    81.064 6179.9 1122.3
+## + guardian           2     3.431 6095.4 1122.9
+## + Fjob               4    56.965 6041.9 1123.4
+## - romantic           1    98.243 6197.1 1123.4
+## - sex                1   100.196 6199.1 1123.5
+## - absences           1   110.458 6209.3 1124.2
+## - Mjob               4   224.920 6323.8 1125.4
+## - goout              1   186.393 6285.3 1129.0
+## 
+## Step:  AIC=1118.74
+## G3 ~ sex + address + famsize + Mjob + studytime + schoolsup + 
+##     famsup + higher + romantic + freetime + goout + absences + 
+##     first_gen_college + failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## - address            1     28.92 6153.2 1118.6
+## - famsize            1     29.58 6153.8 1118.7
+## &lt;none&gt;                           6124.2 1118.7
+## + failures           1     25.37 6098.9 1119.1
+## - schoolsup          1     39.39 6163.6 1119.3
+## + age                1     13.81 6110.4 1119.8
+## + high_freq_absent   1     12.96 6111.3 1119.9
+## - higher             1     50.12 6174.4 1120.0
+## + paid               1     11.45 6112.8 1120.0
+## + traveltime         1     10.94 6113.3 1120.0
+## + reason             3     71.38 6052.9 1120.1
+## - famsup             1     54.90 6179.1 1120.3
+## + activities         1      6.67 6117.6 1120.3
+## + famrel             1      6.41 6117.8 1120.3
+## + internet           1      6.29 6118.0 1120.3
+## + Medu               1      5.99 6118.3 1120.4
+## + health             1      5.64 6118.6 1120.4
+## + Pstatus            1      4.91 6119.3 1120.4
+## - freetime           1     58.15 6182.4 1120.5
+## + school             1      3.60 6120.6 1120.5
+## + Walc               1      1.63 6122.6 1120.6
+## + nursery            1      1.15 6123.1 1120.7
+## + Dalc               1      0.28 6124.0 1120.7
+## + Fedu               1      0.16 6124.1 1120.7
+## - studytime          1     68.48 6192.7 1121.1
+## - first_gen_college  1     83.32 6207.6 1122.1
+## + guardian           2      3.27 6121.0 1122.5
+## + Fjob               4     60.07 6064.2 1122.8
+## - romantic           1     98.67 6222.9 1123.1
+## - sex                1    103.72 6228.0 1123.4
+## - absences           1    127.06 6251.3 1124.9
+## - Mjob               4    223.16 6347.4 1124.9
+## - goout              1    194.44 6318.7 1129.1
+## - failed             1    640.58 6764.8 1156.0
+## 
+## Step:  AIC=1118.61
+## G3 ~ sex + famsize + Mjob + studytime + schoolsup + famsup + 
+##     higher + romantic + freetime + goout + absences + first_gen_college + 
+##     failed
+## 
+##                     Df Sum of Sq    RSS    AIC
+## &lt;none&gt;                           6153.2 1118.6
+## + address            1     28.92 6124.2 1118.7
+## - famsize            1     33.82 6187.0 1118.8
+## - schoolsup          1     37.38 6190.5 1119.0
+## + failures           1     24.86 6128.3 1119.0
+## + traveltime         1     23.30 6129.9 1119.1
+## + age                1     18.47 6134.7 1119.4
+## - higher             1     49.47 6202.6 1119.8
+## + paid               1     12.04 6141.1 1119.8
+## + internet           1     11.88 6141.3 1119.8
+## + high_freq_absent   1      8.90 6144.3 1120.0
+## + activities         1      8.59 6144.6 1120.0
+## - famsup             1     54.87 6208.0 1120.1
+## + Medu               1      7.64 6145.5 1120.1
+## + famrel             1      7.32 6145.8 1120.1
+## + health             1      7.07 6146.1 1120.2
+## + Pstatus            1      5.39 6147.8 1120.3
+## - freetime           1     57.29 6210.5 1120.3
+## + Walc               1      2.41 6150.8 1120.5
+## + reason             3     63.85 6089.3 1120.5
+## + nursery            1      0.88 6152.3 1120.5
+## + Dalc               1      0.33 6152.8 1120.6
+## + Fedu               1      0.20 6153.0 1120.6
+## + school             1      0.10 6153.1 1120.6
+## - studytime          1     64.86 6218.0 1120.8
+## - first_gen_college  1     84.51 6237.7 1122.0
+## + guardian           2      5.72 6147.4 1122.2
+## + Fjob               4     62.03 6091.1 1122.6
+## - romantic           1     96.69 6249.9 1122.8
+## - sex                1     97.75 6250.9 1122.8
+## - absences           1    123.11 6276.3 1124.4
+## - Mjob               4    242.27 6395.4 1125.9
+## - goout              1    189.15 6342.3 1128.6
+## - failed             1    670.10 6823.3 1157.4</code></pre>
+<pre class="r"><code>summary(step.model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = G3 ~ sex + famsize + Mjob + studytime + schoolsup + 
+##     famsup + higher + romantic + freetime + goout + absences + 
+##     first_gen_college + failed, data = data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -13.2041  -2.0732   0.3544   2.6786   9.6991 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           8.11450    1.39218   5.829 1.20e-08 ***
+## sexM                  1.12016    0.45712   2.450 0.014719 *  
+## famsizeLE3            0.65890    0.45713   1.441 0.150309    
+## Mjobhealth            1.68430    0.93895   1.794 0.073641 .  
+## Mjobother             0.05209    0.63950   0.081 0.935123    
+## Mjobservices          1.36030    0.68184   1.995 0.046757 *  
+## Mjobteacher          -0.71854    0.87864  -0.818 0.413992    
+## studytime             0.52329    0.26215   1.996 0.046634 *  
+## schoolsupyes         -0.94383    0.62288  -1.515 0.130542    
+## famsupyes            -0.80258    0.43716  -1.836 0.067160 .  
+## higheryes             1.73643    0.99609   1.743 0.082102 .  
+## romanticyes          -1.09643    0.44989  -2.437 0.015265 *  
+## freetimelow          -0.84135    0.44848  -1.876 0.061429 .  
+## gooutlow              1.53330    0.44981   3.409 0.000723 ***
+## absences              0.07208    0.02621   2.750 0.006245 ** 
+## first_gen_collegeyes -1.19608    0.52493  -2.279 0.023250 *  
+## failedyes            -3.51954    0.54855  -6.416 4.19e-10 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 4.035 on 378 degrees of freedom
+## Multiple R-squared:  0.256,  Adjusted R-squared:  0.2245 
+## F-statistic: 8.127 on 16 and 378 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>From fitting the base variables in a linear model, we can see that the variables sex, schoolsup, famsup, romantic, freetime, goout, absences, and failed are active.</p>
+<p>Based on the backwards stepwise regression model, it seems that the variables sex, Mjob, studytime, higher, romantic, freetime, goout, absences, first_gen_college, famsup, failed.</p>
+<p>Based on these active variables, some interactions that we think could be significant are: schoolsup<em>failed, famsup</em>first_gen_college, higher*first_gen_college.</p>
+<pre class="r"><code>activelm &lt;- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + Mjob + studytime + higher + first_gen_college + famsup)^2)
+
+summary(activelm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = G3 ~ (sex + schoolsup + romantic + freetime + goout + 
+##     absences + failed + Mjob + studytime + higher + first_gen_college + 
+##     famsup)^2)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -13.6429  -1.7534   0.2846   2.2075   7.3177 
+## 
+## Coefficients: (2 not defined because of singularities)
+##                                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                        -1.506826  13.118897  -0.115 0.908638    
+## sexM                                0.892073   5.622189   0.159 0.874042    
+## schoolsupyes                       13.761155   9.218122   1.493 0.136598    
+## romanticyes                        -1.449784   4.692335  -0.309 0.757574    
+## freetimelow                         2.630885   4.451459   0.591 0.554983    
+## gooutlow                           -1.031107  10.156300  -0.102 0.919207    
+## absences                            0.148759   0.316984   0.469 0.639221    
+## failedyes                          -8.234032   4.894235  -1.682 0.093599 .  
+## Mjobhealth                         -1.259093   5.227716  -0.241 0.809847    
+## Mjobother                          -5.143290   9.033916  -0.569 0.569585    
+## Mjobservices                        1.528706  11.532458   0.133 0.894638    
+## Mjobteacher                        -9.988699   6.801967  -1.469 0.143083    
+## studytime                           5.357552   4.658888   1.150 0.251133    
+## higheryes                          15.703850  12.568400   1.249 0.212529    
+## first_gen_collegeyes               -2.042557   2.769453  -0.738 0.461413    
+## famsupyes                          -1.124951   5.956632  -0.189 0.850341    
+## sexM:schoolsupyes                  -3.306582   1.597411  -2.070 0.039366 *  
+## sexM:romanticyes                    1.516326   1.076859   1.408 0.160203    
+## sexM:freetimelow                    0.440768   1.021810   0.431 0.666536    
+## sexM:gooutlow                       0.140986   1.100729   0.128 0.898174    
+## sexM:absences                      -0.168685   0.101499  -1.662 0.097636 .  
+## sexM:failedyes                     -0.812131   1.739573  -0.467 0.640963    
+## sexM:Mjobhealth                     4.072742   2.744648   1.484 0.138956    
+## sexM:Mjobother                      2.715976   1.700434   1.597 0.111336    
+## sexM:Mjobservices                   3.912599   1.832894   2.135 0.033651 *  
+## sexM:Mjobteacher                    4.222718   2.177167   1.940 0.053432 .  
+## sexM:studytime                     -0.342144   0.612314  -0.559 0.576761    
+## sexM:higheryes                     -4.325565   5.196762  -0.832 0.405911    
+## sexM:first_gen_collegeyes           3.448751   1.258091   2.741 0.006511 ** 
+## sexM:famsupyes                      1.181025   1.031439   1.145 0.253169    
+## schoolsupyes:romanticyes            1.976315   1.776126   1.113 0.266780    
+## schoolsupyes:freetimelow            1.219474   1.826300   0.668 0.504853    
+## schoolsupyes:gooutlow              -0.008335   1.789930  -0.005 0.996288    
+## schoolsupyes:absences              -0.181005   0.097024  -1.866 0.063140 .  
+## schoolsupyes:failedyes              2.056166   1.959551   1.049 0.294936    
+## schoolsupyes:Mjobhealth            -2.452853   4.078269  -0.601 0.548027    
+## schoolsupyes:Mjobother             -0.957822   2.166765  -0.442 0.658791    
+## schoolsupyes:Mjobservices           0.062923   2.350522   0.027 0.978662    
+## schoolsupyes:Mjobteacher            3.535611   3.934416   0.899 0.369613    
+## schoolsupyes:studytime             -2.615114   0.957261  -2.732 0.006695 ** 
+## schoolsupyes:higheryes            -11.448554   8.737679  -1.310 0.191177    
+## schoolsupyes:first_gen_collegeyes   5.330960   1.715583   3.107 0.002080 ** 
+## schoolsupyes:famsupyes             -1.051195   1.608959  -0.653 0.514070    
+## romanticyes:freetimelow            -0.104303   1.110758  -0.094 0.925253    
+## romanticyes:gooutlow               -0.993412   1.145600  -0.867 0.386595    
+## romanticyes:absences               -0.067529   0.077543  -0.871 0.384569    
+## romanticyes:failedyes               1.610302   1.391467   1.157 0.248142    
+## romanticyes:Mjobhealth             -0.122641   2.593575  -0.047 0.962318    
+## romanticyes:Mjobother              -0.060667   1.643023  -0.037 0.970572    
+## romanticyes:Mjobservices           -1.237220   1.700337  -0.728 0.467443    
+## romanticyes:Mjobteacher             0.882332   2.215259   0.398 0.690712    
+## romanticyes:studytime              -0.687214   0.691971  -0.993 0.321500    
+## romanticyes:higheryes               2.788889   3.990571   0.699 0.485209    
+## romanticyes:first_gen_collegeyes    0.458349   1.253016   0.366 0.714791    
+## romanticyes:famsupyes              -0.577383   1.077682  -0.536 0.592544    
+## freetimelow:gooutlow               -0.941444   1.057541  -0.890 0.374107    
+## freetimelow:absences                0.111240   0.091142   1.221 0.223287    
+## freetimelow:failedyes              -2.274094   1.541957  -1.475 0.141379    
+## freetimelow:Mjobhealth             -1.322847   2.588477  -0.511 0.609714    
+## freetimelow:Mjobother              -1.531530   1.864238  -0.822 0.412038    
+## freetimelow:Mjobservices           -0.462435   1.972455  -0.234 0.814808    
+## freetimelow:Mjobteacher            -1.231910   2.244147  -0.549 0.583479    
+## freetimelow:studytime               0.604095   0.669282   0.903 0.367508    
+## freetimelow:higheryes              -2.919575   3.673405  -0.795 0.427406    
+## freetimelow:first_gen_collegeyes    0.854057   1.330632   0.642 0.521496    
+## freetimelow:famsupyes              -1.330642   1.077589  -1.235 0.217921    
+## gooutlow:absences                  -0.049939   0.089046  -0.561 0.575366    
+## gooutlow:failedyes                 -0.174341   1.370430  -0.127 0.898860    
+## gooutlow:Mjobhealth                 1.457008   2.348034   0.621 0.535415    
+## gooutlow:Mjobother                 -0.418606   1.709665  -0.245 0.806753    
+## gooutlow:Mjobservices               0.912677   1.784840   0.511 0.609506    
+## gooutlow:Mjobteacher                2.080526   2.307532   0.902 0.368026    
+## gooutlow:studytime                  1.127611   0.699657   1.612 0.108154    
+## gooutlow:higheryes                 -0.372584   9.920550  -0.038 0.970068    
+## gooutlow:first_gen_collegeyes       1.024237   1.296276   0.790 0.430111    
+## gooutlow:famsupyes                 -0.093945   1.093377  -0.086 0.931590    
+## absences:failedyes                  0.289277   0.073870   3.916 0.000113 ***
+## absences:Mjobhealth                -0.044829   0.244754  -0.183 0.854806    
+## absences:Mjobother                 -0.139807   0.139956  -0.999 0.318683    
+## absences:Mjobservices              -0.080993   0.153141  -0.529 0.597307    
+## absences:Mjobteacher               -0.105356   0.196984  -0.535 0.593178    
+## absences:studytime                  0.017934   0.057633   0.311 0.755901    
+## absences:higheryes                 -0.102366   0.248758  -0.412 0.681012    
+## absences:first_gen_collegeyes       0.066378   0.098061   0.677 0.499021    
+## absences:famsupyes                  0.068059   0.073031   0.932 0.352175    
+## failedyes:Mjobhealth                3.888284   2.901794   1.340 0.181337    
+## failedyes:Mjobother                -1.029702   2.006996  -0.513 0.608314    
+## failedyes:Mjobservices              1.625498   2.056012   0.791 0.429838    
+## failedyes:Mjobteacher              -0.667717   4.128115  -0.162 0.871620    
+## failedyes:studytime                 0.274374   0.971061   0.283 0.777729    
+## failedyes:higheryes                -1.349987   4.152803  -0.325 0.745363    
+## failedyes:first_gen_collegeyes      4.246604   1.838110   2.310 0.021593 *  
+## failedyes:famsupyes                 0.068774   1.322558   0.052 0.958565    
+## Mjobhealth:studytime                2.929895   1.371083   2.137 0.033465 *  
+## Mjobother:studytime                 0.867948   0.899516   0.965 0.335419    
+## Mjobservices:studytime              0.977495   0.967555   1.010 0.313230    
+## Mjobteacher:studytime               0.783722   1.376670   0.569 0.569614    
+## Mjobhealth:higheryes                      NA         NA      NA       NA    
+## Mjobother:higheryes                 8.361265   8.588696   0.974 0.331129    
+## Mjobservices:higheryes              1.376403  11.159423   0.123 0.901926    
+## Mjobteacher:higheryes              10.776012   5.658085   1.905 0.057858 .  
+## Mjobhealth:first_gen_collegeyes    -5.333834   2.483592  -2.148 0.032595 *  
+## Mjobother:first_gen_collegeyes     -3.997660   1.895764  -2.109 0.035849 *  
+## Mjobservices:first_gen_collegeyes  -5.602517   1.941616  -2.885 0.004210 ** 
+## Mjobteacher:first_gen_collegeyes   -1.139043   3.603667  -0.316 0.752176    
+## Mjobhealth:famsupyes               -0.971463   2.603701  -0.373 0.709348    
+## Mjobother:famsupyes                 0.228631   1.502886   0.152 0.879195    
+## Mjobservices:famsupyes             -0.129235   1.643959  -0.079 0.937397    
+## Mjobteacher:famsupyes              -1.875211   2.166962  -0.865 0.387575    
+## studytime:higheryes                -7.929807   4.479400  -1.770 0.077760 .  
+## studytime:first_gen_collegeyes      0.748786   0.744561   1.006 0.315434    
+## studytime:famsupyes                 1.418357   0.614634   2.308 0.021743 *  
+## higheryes:first_gen_collegeyes            NA         NA      NA       NA    
+## higheryes:famsupyes                -1.524942   5.664120  -0.269 0.787951    
+## first_gen_collegeyes:famsupyes     -1.101570   1.255553  -0.877 0.381039    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.84 on 282 degrees of freedom
+## Multiple R-squared:  0.4973, Adjusted R-squared:  0.2976 
+## F-statistic: 2.491 on 112 and 282 DF,  p-value: 5.445e-10</code></pre>
+<p>From this, we can see that there seem to be significant interaction effects between sex and schoolsup, sex and first_gen_college, sex and Mjob, schoolsup and absences, schoolsup and studytime, schoolsup and first_gen_college, absences and failed, failed and first_gen_college, Mjob and studytime, Mjob and first_gen_college, studytime and famsup.</p>
 </div>
 <div id="multicategory-ordinal-logit-model" class="section level2">
 <h2>Multicategory ordinal logit model</h2>
-<p>Justification for choosing the model[]</p>
+<p>Due to the way grades are assigned as values between 0 and 20, we would like to consider G3 as an ordered categorical variable with 21 levels. This would allow us to fit a multicategory ordinal logistic model to the data.</p>
+<p>We examine the EDA and active variables in the linear model to choose the predictors in our base model.</p>
+<p>Fitting the base model:</p>
 <pre class="r"><code>require(foreign)</code></pre>
 <pre><code>## Loading required package: foreign</code></pre>
 <pre class="r"><code>require(nnet)
@@ -2669,20 +3799,8 @@ require(reshape2)</code></pre>
 <pre><code>## The following object is masked from &#39;package:openintro&#39;:
 ## 
 ##     tips</code></pre>
-<pre class="r"><code>require(MASS)</code></pre>
-<pre><code>## Loading required package: MASS</code></pre>
-<pre><code>## 
-## Attaching package: &#39;MASS&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     select</code></pre>
-<pre><code>## The following object is masked from &#39;package:patchwork&#39;:
-## 
-##     area</code></pre>
-<pre><code>## The following objects are masked from &#39;package:openintro&#39;:
-## 
-##     housing, mammals</code></pre>
-<pre class="r"><code>require(Hmisc)</code></pre>
+<pre class="r"><code>require(MASS)
+require(Hmisc)</code></pre>
 <pre><code>## Loading required package: Hmisc</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## 
@@ -2708,146 +3826,740 @@ require(reshape2)</code></pre>
 <pre><code>## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     format.pval, units</code></pre>
-<pre class="r"><code>mod1 &lt;- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc, data = training)
+<pre class="r"><code>mod1 &lt;- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc + sex + schoolsup + famsup + absences + studytime + higher, data = training)
 summary(mod1)</code></pre>
 <pre><code>## 
 ## Re-fitting to get Hessian</code></pre>
 <pre><code>## Call:
 ## polr(formula = ord_g3 ~ failed + high_freq_absent + romantic + 
-##     internet + goout + first_gen_college + Walc, data = training)
+##     internet + goout + first_gen_college + Walc + sex + schoolsup + 
+##     famsup + absences + studytime + higher, data = training)
 ## 
 ## Coefficients:
 ##                         Value Std. Error t value
-## failedyes            -1.42372     0.2603 -5.4700
-## high_freq_absentyes   0.08637     0.2472  0.3493
-## romanticyes          -0.35850     0.2146 -1.6703
-## internetyes           0.36061     0.2783  1.2959
-## gooutlow              0.62408     0.2288  2.7272
-## first_gen_collegeyes -0.59097     0.2159 -2.7371
-## Walclow               0.13284     0.2620  0.5071
+## failedyes            -1.34171    0.27018 -4.9659
+## high_freq_absentyes   0.03565    0.34970  0.1019
+## romanticyes          -0.45766    0.22322 -2.0502
+## internetyes           0.36012    0.27651  1.3024
+## gooutlow              0.58461    0.22879  2.5552
+## first_gen_collegeyes -0.66042    0.22335 -2.9568
+## Walclow               0.33622    0.27525  1.2215
+## sexM                  0.55216    0.22206  2.4865
+## schoolsupyes         -0.69882    0.28905 -2.4177
+## famsupyes            -0.48594    0.21594 -2.2503
+## absences              0.01048    0.01726  0.6071
+## studytime             0.25616    0.13427  1.9078
+## higheryes             0.37412    0.45201  0.8277
 ## 
 ## Intercepts:
 ##       Value   Std. Error t value
-## 0|4   -2.4304  0.3992    -6.0875
-## 4|5   -2.3938  0.3980    -6.0149
-## 5|6   -2.2211  0.3925    -5.6592
-## 6|7   -1.8775  0.3837    -4.8926
-## 7|8   -1.6845  0.3803    -4.4295
-## 8|9   -1.1219  0.3723    -3.0130
-## 9|10  -0.7634  0.3686    -2.0712
-## 10|11 -0.1463  0.3664    -0.3993
-## 11|12  0.4354  0.3673     1.1854
-## 12|13  0.7808  0.3686     2.1185
-## 13|14  1.2609  0.3720     3.3894
-## 14|15  1.7386  0.3793     4.5838
-## 15|16  2.4459  0.3980     6.1461
-## 16|17  2.9710  0.4205     7.0654
-## 17|18  3.2811  0.4397     7.4626
-## 18|19  4.2394  0.5417     7.8255
-## 19|20  6.0596  1.0617     5.7077
+## 0|4   -1.6658  0.6572    -2.5347
+## 4|5   -1.6293  0.6566    -2.4816
+## 5|6   -1.4556  0.6534    -2.2276
+## 6|7   -1.1027  0.6485    -1.7004
+## 7|8   -0.9014  0.6467    -1.3939
+## 8|9   -0.3219  0.6437    -0.5000
+## 9|10   0.0449  0.6427     0.0698
+## 10|11  0.6847  0.6438     1.0635
+## 11|12  1.2954  0.6464     2.0040
+## 12|13  1.6591  0.6479     2.5610
+## 13|14  2.1640  0.6516     3.3212
+## 14|15  2.6641  0.6579     4.0496
+## 15|16  3.3940  0.6711     5.0577
+## 16|17  3.9280  0.6858     5.7276
+## 17|18  4.2419  0.6982     6.0754
+## 18|19  5.2132  0.7670     6.7971
+## 19|20  7.0544  1.1934     5.9112
 ## 
-## Residual Deviance: 1583.648 
-## AIC: 1631.648</code></pre>
+## Residual Deviance: 1562.392 
+## AIC: 1622.392</code></pre>
 <pre class="r"><code>(ctable &lt;- coef(summary(mod1)))</code></pre>
 <pre><code>## 
 ## Re-fitting to get Hessian</code></pre>
-<pre><code>##                            Value Std. Error    t value
-## failedyes            -1.42372036  0.2602780 -5.4699994
-## high_freq_absentyes   0.08636691  0.2472445  0.3493178
-## romanticyes          -0.35850194  0.2146345 -1.6702901
-## internetyes           0.36060746  0.2782736  1.2958737
-## gooutlow              0.62408161  0.2288334  2.7272314
-## first_gen_collegeyes -0.59097124  0.2159127 -2.7370837
-## Walclow               0.13284391  0.2619842  0.5070685
-## 0|4                  -2.43035012  0.3992334 -6.0875421
-## 4|5                  -2.39380378  0.3979793 -6.0148957
-## 5|6                  -2.22106349  0.3924681 -5.6592204
-## 6|7                  -1.87748384  0.3837406 -4.8925858
-## 7|8                  -1.68448175  0.3802913 -4.4294509
-## 8|9                  -1.12186032  0.3723381 -3.0130151
-## 9|10                 -0.76340545  0.3685783 -2.0712167
-## 10|11                -0.14630856  0.3663977 -0.3993162
-## 11|12                 0.43542631  0.3673186  1.1854185
-## 12|13                 0.78078395  0.3685510  2.1185235
-## 13|14                 1.26092389  0.3720241  3.3893604
-## 14|15                 1.73859989  0.3792936  4.5837843
-## 15|16                 2.44587810  0.3979537  6.1461375
-## 16|17                 2.97101285  0.4205005  7.0654207
-## 17|18                 3.28105714  0.4396690  7.4625614
-## 18|19                 4.23935277  0.5417371  7.8254800
-## 19|20                 6.05961032  1.0616601  5.7076745</code></pre>
+<pre><code>##                            Value Std. Error     t value
+## failedyes            -1.34171397 0.27018479 -4.96591237
+## high_freq_absentyes   0.03565031 0.34969709  0.10194625
+## romanticyes          -0.45766071 0.22322374 -2.05023314
+## internetyes           0.36011512 0.27651008  1.30235803
+## gooutlow              0.58461188 0.22879147  2.55521711
+## first_gen_collegeyes -0.66042320 0.22335452 -2.95683831
+## Walclow               0.33622440 0.27525303  1.22151026
+## sexM                  0.55215988 0.22206496  2.48647905
+## schoolsupyes         -0.69881781 0.28904608 -2.41766920
+## famsupyes            -0.48593653 0.21594151 -2.25031553
+## absences              0.01047719 0.01725748  0.60710999
+## studytime             0.25615867 0.13426713  1.90782854
+## higheryes             0.37411910 0.45201352  0.82767238
+## 0|4                  -1.66581605 0.65721302 -2.53466683
+## 4|5                  -1.62930927 0.65655494 -2.48160386
+## 5|6                  -1.45558081 0.65342826 -2.22760613
+## 6|7                  -1.10268571 0.64846971 -1.70044290
+## 7|8                  -0.90144383 0.64670148 -1.39391027
+## 8|9                  -0.32186448 0.64369588 -0.50002569
+## 9|10                  0.04485165 0.64272846  0.06978319
+## 10|11                 0.68472806 0.64384467  1.06349884
+## 11|12                 1.29538659 0.64638677  2.00404255
+## 12|13                 1.65914607 0.64785012  2.56100295
+## 13|14                 2.16402771 0.65158608  3.32116935
+## 14|15                 2.66414639 0.65787988  4.04959395
+## 15|16                 3.39401724 0.67106437  5.05766269
+## 16|17                 3.92801161 0.68580175  5.72761970
+## 17|18                 4.24194365 0.69821069  6.07544927
+## 18|19                 5.21317802 0.76696900  6.79711702
+## 19|20                 7.05442354 1.19339185  5.91123825</code></pre>
 <p>Calculate and store p-values:</p>
-<pre class="r"><code>p &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
-(ctable &lt;- cbind(ctable, &quot;p value&quot; = p))</code></pre>
-<pre><code>##                            Value Std. Error    t value      p value
-## failedyes            -1.42372036  0.2602780 -5.4699994 4.500371e-08
-## high_freq_absentyes   0.08636691  0.2472445  0.3493178 7.268508e-01
-## romanticyes          -0.35850194  0.2146345 -1.6702901 9.486199e-02
-## internetyes           0.36060746  0.2782736  1.2958737 1.950190e-01
-## gooutlow              0.62408161  0.2288334  2.7272314 6.386823e-03
-## first_gen_collegeyes -0.59097124  0.2159127 -2.7370837 6.198652e-03
-## Walclow               0.13284391  0.2619842  0.5070685 6.121068e-01
-## 0|4                  -2.43035012  0.3992334 -6.0875421 1.146573e-09
-## 4|5                  -2.39380378  0.3979793 -6.0148957 1.800026e-09
-## 5|6                  -2.22106349  0.3924681 -5.6592204 1.520622e-08
-## 6|7                  -1.87748384  0.3837406 -4.8925858 9.951973e-07
-## 7|8                  -1.68448175  0.3802913 -4.4294509 9.447334e-06
-## 8|9                  -1.12186032  0.3723381 -3.0130151 2.586661e-03
-## 9|10                 -0.76340545  0.3685783 -2.0712167 3.833855e-02
-## 10|11                -0.14630856  0.3663977 -0.3993162 6.896602e-01
-## 11|12                 0.43542631  0.3673186  1.1854185 2.358520e-01
-## 12|13                 0.78078395  0.3685510  2.1185235 3.413075e-02
-## 13|14                 1.26092389  0.3720241  3.3893604 7.005588e-04
-## 14|15                 1.73859989  0.3792936  4.5837843 4.566353e-06
-## 15|16                 2.44587810  0.3979537  6.1461375 7.939246e-10
-## 16|17                 2.97101285  0.4205005  7.0654207 1.601301e-12
-## 17|18                 3.28105714  0.4396690  7.4625614 8.485642e-14
-## 18|19                 4.23935277  0.5417371  7.8254800 5.057235e-15
-## 19|20                 6.05961032  1.0616601  5.7076745 1.145302e-08</code></pre>
+<pre class="r"><code>p1 &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p1))</code></pre>
+<pre><code>##                            Value Std. Error     t value      p value
+## failedyes            -1.34171397 0.27018479 -4.96591237 6.837883e-07
+## high_freq_absentyes   0.03565031 0.34969709  0.10194625 9.187993e-01
+## romanticyes          -0.45766071 0.22322374 -2.05023314 4.034169e-02
+## internetyes           0.36011512 0.27651008  1.30235803 1.927940e-01
+## gooutlow              0.58461188 0.22879147  2.55521711 1.061216e-02
+## first_gen_collegeyes -0.66042320 0.22335452 -2.95683831 3.108111e-03
+## Walclow               0.33622440 0.27525303  1.22151026 2.218929e-01
+## sexM                  0.55215988 0.22206496  2.48647905 1.290142e-02
+## schoolsupyes         -0.69881781 0.28904608 -2.41766920 1.562027e-02
+## famsupyes            -0.48593653 0.21594151 -2.25031553 2.442892e-02
+## absences              0.01047719 0.01725748  0.60710999 5.437779e-01
+## studytime             0.25615867 0.13426713  1.90782854 5.641338e-02
+## higheryes             0.37411910 0.45201352  0.82767238 4.078561e-01
+## 0|4                  -1.66581605 0.65721302 -2.53466683 1.125543e-02
+## 4|5                  -1.62930927 0.65655494 -2.48160386 1.307926e-02
+## 5|6                  -1.45558081 0.65342826 -2.22760613 2.590679e-02
+## 6|7                  -1.10268571 0.64846971 -1.70044290 8.904765e-02
+## 7|8                  -0.90144383 0.64670148 -1.39391027 1.633447e-01
+## 8|9                  -0.32186448 0.64369588 -0.50002569 6.170570e-01
+## 9|10                  0.04485165 0.64272846  0.06978319 9.443662e-01
+## 10|11                 0.68472806 0.64384467  1.06349884 2.875558e-01
+## 11|12                 1.29538659 0.64638677  2.00404255 4.506550e-02
+## 12|13                 1.65914607 0.64785012  2.56100295 1.043705e-02
+## 13|14                 2.16402771 0.65158608  3.32116935 8.964113e-04
+## 14|15                 2.66414639 0.65787988  4.04959395 5.130658e-05
+## 15|16                 3.39401724 0.67106437  5.05766269 4.244263e-07
+## 16|17                 3.92801161 0.68580175  5.72761970 1.018496e-08
+## 17|18                 4.24194365 0.69821069  6.07544927 1.236411e-09
+## 18|19                 5.21317802 0.76696900  6.79711702 1.067334e-11
+## 19|20                 7.05442354 1.19339185  5.91123825 3.395455e-09</code></pre>
 <p>Confidence intervals for parameter estimates:</p>
-<pre class="r"><code>(ci &lt;- confint(mod1))</code></pre>
+<pre class="r"><code>(ci1 &lt;- confint(mod1))</code></pre>
 <pre><code>## Waiting for profiling to be done...</code></pre>
 <pre><code>## 
 ## Re-fitting to get Hessian</code></pre>
-<pre><code>##                           2.5 %      97.5 %
-## failedyes            -1.9386865 -0.91708286
-## high_freq_absentyes  -0.3976875  0.57266507
-## romanticyes          -0.7810310  0.06104939
-## internetyes          -0.1833734  0.90920502
-## gooutlow              0.1768560  1.07486363
-## first_gen_collegeyes -1.0161104 -0.16907682
-## Walclow              -0.3823228  0.64635277</code></pre>
-<pre class="r"><code>confint.default(mod1) </code></pre>
+<pre><code>##                             2.5 %      97.5 %
+## failedyes            -1.876197497 -0.81556618
+## high_freq_absentyes  -0.656411452  0.71764477
+## romanticyes          -0.897663611 -0.02188466
+## internetyes          -0.180649012  0.90497042
+## gooutlow              0.137337761  1.03514595
+## first_gen_collegeyes -1.100400976 -0.22416437
+## Walclow              -0.203641426  0.87718770
+## sexM                  0.118264255  0.98945878
+## schoolsupyes         -1.268171885 -0.13267874
+## famsupyes            -0.910849856 -0.06369438
+## absences             -0.021851056  0.04656485
+## studytime            -0.006577242  0.52033547
+## higheryes            -0.505211121  1.27490555</code></pre>
+<p>Analyzing the p-values and confidence intervals allows us to determine whether the coefficient estimates are significant. Based on these, failed, romantic, goout, first_gen_college, sex, schoolsup, famsup seem to be active. (Studytime is dubious, but we will include it in the next model)</p>
+<p>Refitting a model with these predictors:</p>
+<p>(Note: AIC is lower with studytime than without, and studytime seems significant.)</p>
+<pre class="r"><code>mod2 &lt;- polr(ord_g3 ~ failed + romantic + goout + first_gen_college + studytime + sex + schoolsup + famsup, data = training)
+summary(mod2)</code></pre>
 <pre><code>## 
 ## Re-fitting to get Hessian</code></pre>
-<pre><code>##                           2.5 %      97.5 %
-## failedyes            -1.9338558 -0.91358491
-## high_freq_absentyes  -0.3982235  0.57095731
-## romanticyes          -0.7791779  0.06217403
-## internetyes          -0.1847988  0.90601373
-## gooutlow              0.1755764  1.07258681
-## first_gen_collegeyes -1.0141524 -0.16779005
-## Walclow              -0.3806356  0.64632342</code></pre>
-<p>To get odds ratios:</p>
-<pre class="r"><code>exp(coef(mod1))</code></pre>
-<pre><code>##            failedyes  high_freq_absentyes          romanticyes 
-##            0.2408164            1.0902063            0.6987223 
-##          internetyes             gooutlow first_gen_collegeyes 
-##            1.4342004            1.8665310            0.5537892 
-##              Walclow 
-##            1.1420717</code></pre>
-<pre class="r"><code>exp(cbind(OR = coef(mod1), ci))</code></pre>
-<pre><code>##                             OR     2.5 %    97.5 %
-## failedyes            0.2408164 0.1438928 0.3996833
-## high_freq_absentyes  1.0902063 0.6718719 1.7729859
-## romanticyes          0.6987223 0.4579336 1.0629514
-## internetyes          1.4342004 0.8324572 2.4823483
-## gooutlow             1.8665310 1.1934592 2.9295934
-## first_gen_collegeyes 0.5537892 0.3620002 0.8444440
-## Walclow              1.1420717 0.6822748 1.9085671</code></pre>
-<p>Testing set:</p>
-<pre class="r"><code>pred.ord &lt;- predict(mod1, testing)</code></pre>
-<p>Model diagnostics:</p>
+<pre><code>## Call:
+## polr(formula = ord_g3 ~ failed + romantic + goout + first_gen_college + 
+##     studytime + sex + schoolsup + famsup, data = training)
+## 
+## Coefficients:
+##                        Value Std. Error t value
+## failedyes            -1.3882     0.2606  -5.327
+## romanticyes          -0.4157     0.2160  -1.924
+## gooutlow              0.6874     0.2119   3.245
+## first_gen_collegeyes -0.6953     0.2189  -3.177
+## studytime             0.2749     0.1333   2.062
+## sexM                  0.4689     0.2127   2.205
+## schoolsupyes         -0.6642     0.2881  -2.305
+## famsupyes            -0.4203     0.2133  -1.970
+## 
+## Intercepts:
+##       Value   Std. Error t value
+## 0|4   -2.5429  0.4453    -5.7101
+## 4|5   -2.5068  0.4443    -5.6425
+## 5|6   -2.3344  0.4396    -5.3103
+## 6|7   -1.9834  0.4324    -4.5866
+## 7|8   -1.7842  0.4294    -4.1546
+## 8|9   -1.2081  0.4228    -2.8573
+## 9|10  -0.8412  0.4200    -2.0027
+## 10|11 -0.2072  0.4175    -0.4963
+## 11|12  0.3981  0.4182     0.9519
+## 12|13  0.7604  0.4192     1.8142
+## 13|14  1.2610  0.4225     2.9847
+## 14|15  1.7560  0.4295     4.0886
+## 15|16  2.4801  0.4464     5.5558
+## 16|17  3.0130  0.4678     6.4414
+## 17|18  3.3261  0.4857     6.8484
+## 18|19  4.2924  0.5793     7.4098
+## 19|20  6.1276  1.0817     5.6650
+## 
+## Residual Deviance: 1567.543 
+## AIC: 1617.543</code></pre>
+<pre class="r"><code>(ctable &lt;- coef(summary(mod2)))</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                           Value Std. Error    t value
+## failedyes            -1.3881639  0.2605997 -5.3268047
+## romanticyes          -0.4156752  0.2160358 -1.9241039
+## gooutlow              0.6873737  0.2118547  3.2445526
+## first_gen_collegeyes -0.6953188  0.2188570 -3.1770460
+## studytime             0.2748992  0.1332997  2.0622646
+## sexM                  0.4689357  0.2126871  2.2048153
+## schoolsupyes         -0.6642084  0.2881418 -2.3051443
+## famsupyes            -0.4203058  0.2133383 -1.9701374
+## 0|4                  -2.5429074  0.4453387 -5.7100521
+## 4|5                  -2.5067847  0.4442706 -5.6424726
+## 5|6                  -2.3344286  0.4396061 -5.3102731
+## 6|7                  -1.9834475  0.4324423 -4.5866175
+## 7|8                  -1.7841536  0.4294407 -4.1545983
+## 8|9                  -1.2081500  0.4228275 -2.8573116
+## 9|10                 -0.8412191  0.4200487 -2.0026706
+## 10|11                -0.2072168  0.4175067 -0.4963196
+## 11|12                 0.3980517  0.4181620  0.9519078
+## 12|13                 0.7604341  0.4191666  1.8141570
+## 13|14                 1.2609616  0.4224815  2.9846550
+## 14|15                 1.7559528  0.4294754  4.0885992
+## 15|16                 2.4801341  0.4464006  5.5558481
+## 16|17                 3.0129643  0.4677514  6.4413788
+## 17|18                 3.3260960  0.4856779  6.8483581
+## 18|19                 4.2923566  0.5792787  7.4098294
+## 19|20                 6.1275584  1.0816527  5.6649962</code></pre>
+<pre class="r"><code>p2 &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p2))</code></pre>
+<pre><code>##                           Value Std. Error    t value      p value
+## failedyes            -1.3881639  0.2605997 -5.3268047 9.995554e-08
+## romanticyes          -0.4156752  0.2160358 -1.9241039 5.434156e-02
+## gooutlow              0.6873737  0.2118547  3.2445526 1.176353e-03
+## first_gen_collegeyes -0.6953188  0.2188570 -3.1770460 1.487835e-03
+## studytime             0.2748992  0.1332997  2.0622646 3.918255e-02
+## sexM                  0.4689357  0.2126871  2.2048153 2.746706e-02
+## schoolsupyes         -0.6642084  0.2881418 -2.3051443 2.115849e-02
+## famsupyes            -0.4203058  0.2133383 -1.9701374 4.882263e-02
+## 0|4                  -2.5429074  0.4453387 -5.7100521 1.129416e-08
+## 4|5                  -2.5067847  0.4442706 -5.6424726 1.676252e-08
+## 5|6                  -2.3344286  0.4396061 -5.3102731 1.094611e-07
+## 6|7                  -1.9834475  0.4324423 -4.5866175 4.504849e-06
+## 7|8                  -1.7841536  0.4294407 -4.1545983 3.258595e-05
+## 8|9                  -1.2081500  0.4228275 -2.8573116 4.272462e-03
+## 9|10                 -0.8412191  0.4200487 -2.0026706 4.521266e-02
+## 10|11                -0.2072168  0.4175067 -0.4963196 6.196689e-01
+## 11|12                 0.3980517  0.4181620  0.9519078 3.411438e-01
+## 12|13                 0.7604341  0.4191666  1.8141570 6.965355e-02
+## 13|14                 1.2609616  0.4224815  2.9846550 2.838983e-03
+## 14|15                 1.7559528  0.4294754  4.0885992 4.339860e-05
+## 15|16                 2.4801341  0.4464006  5.5558481 2.762670e-08
+## 16|17                 3.0129643  0.4677514  6.4413788 1.183930e-10
+## 17|18                 3.3260960  0.4856779  6.8483581 7.470236e-12
+## 18|19                 4.2923566  0.5792787  7.4098294 1.264620e-13
+## 19|20                 6.1275584  1.0816527  5.6649962 1.470278e-08</code></pre>
+<pre class="r"><code>(ci2 &lt;- confint(mod2))</code></pre>
+<pre><code>## Waiting for profiling to be done...
+## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                            2.5 %       97.5 %
+## failedyes            -1.90462685 -0.881708189
+## romanticyes          -0.84097272  0.006566793
+## gooutlow              0.27365841  1.104747592
+## first_gen_collegeyes -1.12660028 -0.268012697
+## studytime             0.01411035  0.537164395
+## sexM                  0.05297154  0.887306542
+## schoolsupyes         -1.23199282 -0.100060789
+## famsupyes            -0.83978194 -0.002875816</code></pre>
+<p>AIC has decreased.</p>
+<p>Based on the p-values and confidence intervals, romantic does not seem to be significant. Let’s try excluding it.</p>
+<p>Pared-down model again:</p>
+<pre class="r"><code>mod3 &lt;- polr(ord_g3 ~ failed + goout + first_gen_college + sex + schoolsup + studytime, data = training)
+summary(mod3)</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>## Call:
+## polr(formula = ord_g3 ~ failed + goout + first_gen_college + 
+##     sex + schoolsup + studytime, data = training)
+## 
+## Coefficients:
+##                        Value Std. Error t value
+## failedyes            -1.4470     0.2594  -5.577
+## gooutlow              0.6862     0.2115   3.244
+## first_gen_collegeyes -0.5623     0.2119  -2.654
+## sexM                  0.5365     0.2106   2.547
+## schoolsupyes         -0.6138     0.2822  -2.175
+## studytime             0.2189     0.1311   1.670
+## 
+## Intercepts:
+##       Value   Std. Error t value
+## 0|4   -2.1140  0.4116    -5.1354
+## 4|5   -2.0782  0.4106    -5.0620
+## 5|6   -1.9083  0.4060    -4.7005
+## 6|7   -1.5631  0.3995    -3.9126
+## 7|8   -1.3668  0.3969    -3.4435
+## 8|9   -0.7982  0.3913    -2.0401
+## 9|10  -0.4358  0.3892    -1.1199
+## 10|11  0.1921  0.3879     0.4952
+## 11|12  0.7943  0.3898     2.0379
+## 12|13  1.1538  0.3918     2.9448
+## 13|14  1.6485  0.3967     4.1551
+## 14|15  2.1387  0.4054     5.2759
+## 15|16  2.8588  0.4248     6.7305
+## 16|17  3.3897  0.4478     7.5696
+## 17|18  3.7015  0.4667     7.9310
+## 18|19  4.6606  0.5643     8.2598
+## 19|20  6.4828  1.0738     6.0371
+## 
+## Residual Deviance: 1574.549 
+## AIC: 1620.549</code></pre>
+<pre class="r"><code>(ctable &lt;- coef(summary(mod3)))</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                           Value Std. Error    t value
+## failedyes            -1.4470044  0.2594411 -5.5773903
+## gooutlow              0.6862095  0.2115274  3.2440693
+## first_gen_collegeyes -0.5623425  0.2119141 -2.6536334
+## sexM                  0.5364682  0.2106267  2.5470100
+## schoolsupyes         -0.6138372  0.2821634 -2.1754669
+## studytime             0.2188984  0.1310852  1.6698946
+## 0|4                  -2.1139669  0.4116475 -5.1353819
+## 4|5                  -2.0782289  0.4105521 -5.0620339
+## 5|6                  -1.9083008  0.4059746 -4.7005421
+## 6|7                  -1.5630672  0.3995004 -3.9125544
+## 7|8                  -1.3667896  0.3969200 -3.4434890
+## 8|9                  -0.7982483  0.3912773 -2.0401088
+## 9|10                 -0.4358495  0.3891720 -1.1199406
+## 10|11                 0.1920664  0.3878678  0.4951852
+## 11|12                 0.7942916  0.3897685  2.0378547
+## 12|13                 1.1537589  0.3917944  2.9448073
+## 13|14                 1.6485090  0.3967450  4.1550843
+## 14|15                 2.1387107  0.4053723  5.2759168
+## 15|16                 2.8587993  0.4247500  6.7305450
+## 16|17                 3.3897018  0.4478023  7.5696388
+## 17|18                 3.7014831  0.4667134  7.9309557
+## 18|19                 4.6605957  0.5642500  8.2598063
+## 19|20                 6.4827907  1.0738186  6.0371377</code></pre>
+<pre class="r"><code>p3 &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p3))</code></pre>
+<pre><code>##                           Value Std. Error    t value      p value
+## failedyes            -1.4470044  0.2594411 -5.5773903 2.441537e-08
+## gooutlow              0.6862095  0.2115274  3.2440693 1.178351e-03
+## first_gen_collegeyes -0.5623425  0.2119141 -2.6536334 7.963029e-03
+## sexM                  0.5364682  0.2106267  2.5470100 1.086503e-02
+## schoolsupyes         -0.6138372  0.2821634 -2.1754669 2.959515e-02
+## studytime             0.2188984  0.1310852  1.6698946 9.494022e-02
+## 0|4                  -2.1139669  0.4116475 -5.1353819 2.815717e-07
+## 4|5                  -2.0782289  0.4105521 -5.0620339 4.148073e-07
+## 5|6                  -1.9083008  0.4059746 -4.7005421 2.594718e-06
+## 6|7                  -1.5630672  0.3995004 -3.9125544 9.132497e-05
+## 7|8                  -1.3667896  0.3969200 -3.4434890 5.742600e-04
+## 8|9                  -0.7982483  0.3912773 -2.0401088 4.133949e-02
+## 9|10                 -0.4358495  0.3891720 -1.1199406 2.627391e-01
+## 10|11                 0.1920664  0.3878678  0.4951852 6.204694e-01
+## 11|12                 0.7942916  0.3897685  2.0378547 4.156447e-02
+## 12|13                 1.1537589  0.3917944  2.9448073 3.231559e-03
+## 13|14                 1.6485090  0.3967450  4.1550843 3.251677e-05
+## 14|15                 2.1387107  0.4053723  5.2759168 1.320940e-07
+## 15|16                 2.8587993  0.4247500  6.7305450 1.690288e-11
+## 16|17                 3.3897018  0.4478023  7.5696388 3.742633e-14
+## 17|18                 3.7014831  0.4667134  7.9309557 2.174658e-15
+## 18|19                 4.6605957  0.5642500  8.2598063 1.459090e-16
+## 19|20                 6.4827907  1.0738186  6.0371377 1.568718e-09</code></pre>
+<pre class="r"><code>(ci3 &lt;- confint(mod3))</code></pre>
+<pre><code>## Waiting for profiling to be done...
+## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                            2.5 %      97.5 %
+## failedyes            -1.96148845 -0.94318819
+## gooutlow              0.27307924  1.10288470
+## first_gen_collegeyes -0.97950820 -0.14817187
+## sexM                  0.12485281  0.95095558
+## schoolsupyes         -1.16913473 -0.06070744
+## studytime            -0.03766773  0.47670960</code></pre>
+<p>All predictors are significant, but AIC has increased compared to mod2.</p>
+<p>Evaluating accuracy of the model for the training set:</p>
+<pre class="r"><code>acc.ord3 &lt;- predict(mod3, training)
+ctable &lt;- table(training$G3, acc.ord3)
+round((sum(diag(ctable))/sum(ctable))*100,2)</code></pre>
+<pre><code>## [1] 17.09</code></pre>
+<pre class="r"><code>ctable</code></pre>
+<pre><code>##     acc.ord3
+##       0  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+##   0  16  0  0  0  0  0  0  7  7  0  0  0  3  0  0  0  0  0
+##   4   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   5   2  0  0  0  0  0  0  3  0  0  0  0  0  0  0  0  0  0
+##   6   1  0  0  0  0  0  0  6  5  0  0  0  0  0  0  0  0  0
+##   7   5  0  0  0  0  0  0  0  1  0  0  0  2  0  0  0  0  0
+##   8  12  0  0  0  0  0  0  4  9  0  0  0  2  0  0  0  0  0
+##   9   6  0  0  0  0  0  0  4  9  0  0  0  1  0  0  0  0  0
+##   10  8  0  0  0  0  0  0  6 20  0  0  0  5  0  0  0  0  0
+##   11  4  0  0  0  0  0  0  8 23  0  0  0  5  0  0  0  0  0
+##   12  3  0  0  0  0  0  0  5 11  0  0  0  4  0  0  0  0  0
+##   13  5  0  0  0  0  0  0  3 17  0  0  0  3  0  0  0  0  0
+##   14  1  0  0  0  0  0  0  3  8  0  0  0 11  0  0  0  0  0
+##   15  0  0  0  0  0  0  0  2 14  0  0  0  9  0  0  0  0  0
+##   16  0  0  0  0  0  0  0  2  6  0  0  0  4  0  0  0  0  0
+##   17  0  0  0  0  0  0  0  1  3  0  0  0  1  0  0  0  0  0
+##   18  1  0  0  0  0  0  0  1  5  0  0  0  2  0  0  0  0  0
+##   19  0  0  0  0  0  0  0  0  3  0  0  0  2  0  0  0  0  0
+##   20  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0</code></pre>
+<p>Very terrible accuracy even for the training set.</p>
+<p>What if we add interaction terms?</p>
+<p>Let’s base our interaction terms on the discussion for the linear model.</p>
+<pre class="r"><code>mod4 &lt;- polr(ord_g3 ~ failed + goout + romantic +  first_gen_college + sex + schoolsup + sex*schoolsup + sex*first_gen_college + schoolsup * failed + schoolsup * studytime + schoolsup * first_gen_college + studytime*famsup, data = training)
+summary(mod4)</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>## Call:
+## polr(formula = ord_g3 ~ failed + goout + romantic + first_gen_college + 
+##     sex + schoolsup + sex * schoolsup + sex * first_gen_college + 
+##     schoolsup * failed + schoolsup * studytime + schoolsup * 
+##     first_gen_college + studytime * famsup, data = training)
+## 
+## Coefficients:
+##                                      Value Std. Error  t value
+## failedyes                         -1.72945     0.2981 -5.80124
+## gooutlow                           0.67401     0.2169  3.10806
+## romanticyes                       -0.48910     0.2204 -2.21930
+## first_gen_collegeyes              -1.43664     0.3180 -4.51738
+## sexM                              -0.01446     0.3391 -0.04265
+## schoolsupyes                       0.73242     0.9305  0.78712
+## studytime                          0.36175     0.2487  1.45475
+## famsupyes                         -0.76421     0.5894 -1.29664
+## sexM:schoolsupyes                 -1.06747     0.6217 -1.71701
+## first_gen_collegeyes:sexM          1.06194     0.4232  2.50904
+## failedyes:schoolsupyes             1.15774     0.6593  1.75607
+## schoolsupyes:studytime            -1.11414     0.3374 -3.30178
+## first_gen_collegeyes:schoolsupyes  1.59232     0.6093  2.61341
+## studytime:famsupyes                0.14783     0.2850  0.51876
+## 
+## Intercepts:
+##       Value   Std. Error t value
+## 0|4   -3.0101  0.5949    -5.0599
+## 4|5   -2.9717  0.5939    -5.0034
+## 5|6   -2.7903  0.5898    -4.7309
+## 6|7   -2.4230  0.5833    -4.1537
+## 7|8   -2.2159  0.5806    -3.8163
+## 8|9   -1.6123  0.5757    -2.8006
+## 9|10  -1.2173  0.5741    -2.1202
+## 10|11 -0.5423  0.5738    -0.9451
+## 11|12  0.0965  0.5744     0.1680
+## 12|13  0.4842  0.5739     0.8438
+## 13|14  1.0192  0.5741     1.7752
+## 14|15  1.5345  0.5779     2.6551
+## 15|16  2.2702  0.5892     3.8531
+## 16|17  2.8082  0.6045     4.6455
+## 17|18  3.1241  0.6180     5.0554
+## 18|19  4.0937  0.6937     5.9014
+## 19|20  5.9292  1.1498     5.1569
+## 
+## Residual Deviance: 1537.762 
+## AIC: 1599.762</code></pre>
+<pre class="r"><code>(ctable &lt;- coef(summary(mod4)))</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                                         Value Std. Error     t value
+## failedyes                         -1.72945368  0.2981178 -5.80124295
+## gooutlow                           0.67400726  0.2168580  3.10805786
+## romanticyes                       -0.48909643  0.2203829 -2.21930313
+## first_gen_collegeyes              -1.43663982  0.3180252 -4.51737778
+## sexM                              -0.01446239  0.3390652 -0.04265371
+## schoolsupyes                       0.73241720  0.9305008  0.78712151
+## studytime                          0.36174519  0.2486653  1.45474731
+## famsupyes                         -0.76421191  0.5893770 -1.29664348
+## sexM:schoolsupyes                 -1.06746616  0.6217004 -1.71701055
+## first_gen_collegeyes:sexM          1.06194139  0.4232461  2.50904014
+## failedyes:schoolsupyes             1.15773926  0.6592797  1.75606684
+## schoolsupyes:studytime            -1.11413949  0.3374358 -3.30178248
+## first_gen_collegeyes:schoolsupyes  1.59232262  0.6092889  2.61341153
+## studytime:famsupyes                0.14782789  0.2849627  0.51876227
+## 0|4                               -3.01008158  0.5948850 -5.05993887
+## 4|5                               -2.97166463  0.5939322 -5.00337322
+## 5|6                               -2.79029263  0.5898075 -4.73085276
+## 6|7                               -2.42295680  0.5833207 -4.15373034
+## 7|8                               -2.21585268  0.5806252 -3.81632165
+## 8|9                               -1.61234628  0.5757246 -2.80055115
+## 9|10                              -1.21732081  0.5741468 -2.12022571
+## 10|11                             -0.54231022  0.5738069 -0.94510930
+## 11|12                              0.09649365  0.5743725  0.16799839
+## 12|13                              0.48423331  0.5738879  0.84377688
+## 13|14                              1.01921806  0.5741418  1.77520259
+## 14|15                              1.53449674  0.5779426  2.65510251
+## 15|16                              2.27018077  0.5891862  3.85307839
+## 16|17                              2.80819116  0.6045010  4.64546978
+## 17|18                              3.12405658  0.6179583  5.05544881
+## 18|19                              4.09365582  0.6936810  5.90135194
+## 19|20                              5.92920227  1.1497705  5.15685736</code></pre>
+<pre class="r"><code>p4 &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p4))</code></pre>
+<pre><code>##                                         Value Std. Error     t value
+## failedyes                         -1.72945368  0.2981178 -5.80124295
+## gooutlow                           0.67400726  0.2168580  3.10805786
+## romanticyes                       -0.48909643  0.2203829 -2.21930313
+## first_gen_collegeyes              -1.43663982  0.3180252 -4.51737778
+## sexM                              -0.01446239  0.3390652 -0.04265371
+## schoolsupyes                       0.73241720  0.9305008  0.78712151
+## studytime                          0.36174519  0.2486653  1.45474731
+## famsupyes                         -0.76421191  0.5893770 -1.29664348
+## sexM:schoolsupyes                 -1.06746616  0.6217004 -1.71701055
+## first_gen_collegeyes:sexM          1.06194139  0.4232461  2.50904014
+## failedyes:schoolsupyes             1.15773926  0.6592797  1.75606684
+## schoolsupyes:studytime            -1.11413949  0.3374358 -3.30178248
+## first_gen_collegeyes:schoolsupyes  1.59232262  0.6092889  2.61341153
+## studytime:famsupyes                0.14782789  0.2849627  0.51876227
+## 0|4                               -3.01008158  0.5948850 -5.05993887
+## 4|5                               -2.97166463  0.5939322 -5.00337322
+## 5|6                               -2.79029263  0.5898075 -4.73085276
+## 6|7                               -2.42295680  0.5833207 -4.15373034
+## 7|8                               -2.21585268  0.5806252 -3.81632165
+## 8|9                               -1.61234628  0.5757246 -2.80055115
+## 9|10                              -1.21732081  0.5741468 -2.12022571
+## 10|11                             -0.54231022  0.5738069 -0.94510930
+## 11|12                              0.09649365  0.5743725  0.16799839
+## 12|13                              0.48423331  0.5738879  0.84377688
+## 13|14                              1.01921806  0.5741418  1.77520259
+## 14|15                              1.53449674  0.5779426  2.65510251
+## 15|16                              2.27018077  0.5891862  3.85307839
+## 16|17                              2.80819116  0.6045010  4.64546978
+## 17|18                              3.12405658  0.6179583  5.05544881
+## 18|19                              4.09365582  0.6936810  5.90135194
+## 19|20                              5.92920227  1.1497705  5.15685736
+##                                        p value
+## failedyes                         6.582515e-09
+## gooutlow                          1.883212e-03
+## romanticyes                       2.646611e-02
+## first_gen_collegeyes              6.261014e-06
+## sexM                              9.659776e-01
+## schoolsupyes                      4.312107e-01
+## studytime                         1.457392e-01
+## famsupyes                         1.947539e-01
+## sexM:schoolsupyes                 8.597724e-02
+## first_gen_collegeyes:sexM         1.210597e-02
+## failedyes:schoolsupyes            7.907700e-02
+## schoolsupyes:studytime            9.607254e-04
+## first_gen_collegeyes:schoolsupyes 8.964329e-03
+## studytime:famsupyes               6.039265e-01
+## 0|4                               4.193909e-07
+## 4|5                               5.633572e-07
+## 5|6                               2.235787e-06
+## 6|7                               3.270986e-05
+## 7|8                               1.354559e-04
+## 8|9                               5.101542e-03
+## 9|10                              3.398702e-02
+## 10|11                             3.446031e-01
+## 11|12                             8.665845e-01
+## 12|13                             3.987941e-01
+## 13|14                             7.586444e-02
+## 14|15                             7.928431e-03
+## 15|16                             1.166420e-04
+## 16|17                             3.393034e-06
+## 17|18                             4.293798e-07
+## 18|19                             3.605349e-09
+## 19|20                             2.511290e-07</code></pre>
+<pre class="r"><code>(ci4 &lt;- confint(mod4))</code></pre>
+<pre><code>## Waiting for profiling to be done...
+## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                                        2.5 %      97.5 %
+## failedyes                         -2.3214364 -1.15123396
+## gooutlow                           0.2503920  1.10114465
+## romanticyes                       -0.9230151 -0.05837766
+## first_gen_collegeyes              -2.0646870 -0.81670972
+## sexM                              -0.6799620  0.65071516
+## schoolsupyes                      -1.0998497  2.56413384
+## studytime                         -0.1227550  0.85203523
+## famsupyes                         -1.9233145  0.38932033
+## sexM:schoolsupyes                 -2.2962304  0.15377624
+## first_gen_collegeyes:sexM          0.2363092  1.89633281
+## failedyes:schoolsupyes            -0.1337302  2.46425196
+## schoolsupyes:studytime            -1.7820611 -0.45214925
+## first_gen_collegeyes:schoolsupyes  0.4009686  2.79629741
+## studytime:famsupyes               -0.4093914  0.70866271</code></pre>
+<p>AIC has decreased significantly compared to the previous models without interaction terms, by nearly 20. However, in this model, sex, its interaction with schoolsup, and its interaction with first_gen_college all seem to be insignificant. The interaction between studytime and famsup and failed and schoolsup do not seem significant either, so let us remove it to pare down the model:</p>
+<pre class="r"><code>mod5 &lt;- polr(ord_g3 ~ failed + goout + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, data = training)
+summary(mod5)</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>## Call:
+## polr(formula = ord_g3 ~ failed + goout + romantic + schoolsup + 
+##     first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, 
+##     data = training)
+## 
+## Coefficients:
+##                                      Value Std. Error  t value
+## failedyes                         -1.39146     0.2622 -5.30667
+## gooutlow                           0.59649     0.2134  2.79476
+## romanticyes                       -0.50391     0.2163 -2.32943
+## schoolsupyes                       0.03364     0.8300  0.04052
+## first_gen_collegeyes              -0.85007     0.2317 -3.66947
+## studytime                          0.29305     0.1393  2.10388
+## schoolsupyes:studytime            -0.85318     0.3244 -2.62985
+## schoolsupyes:first_gen_collegeyes  1.52426     0.5720  2.66499
+## 
+## Intercepts:
+##       Value   Std. Error t value
+## 0|4   -2.6921  0.4042    -6.6607
+## 4|5   -2.6558  0.4029    -6.5914
+## 5|6   -2.4839  0.3975    -6.2485
+## 6|7   -2.1376  0.3891    -5.4942
+## 7|8   -1.9409  0.3852    -5.0386
+## 8|9   -1.3590  0.3772    -3.6032
+## 9|10  -0.9824  0.3739    -2.6277
+## 10|11 -0.3366  0.3707    -0.9081
+## 11|12  0.2744  0.3708     0.7400
+## 12|13  0.6418  0.3719     1.7259
+## 13|14  1.1514  0.3752     3.0688
+## 14|15  1.6489  0.3824     4.3124
+## 15|16  2.3707  0.4009     5.9140
+## 16|17  2.9048  0.4245     6.8436
+## 17|18  3.2188  0.4440     7.2496
+## 18|19  4.1810  0.5450     7.6720
+## 19|20  6.0069  1.0636     5.6479
+## 
+## Residual Deviance: 1563.245 
+## AIC: 1613.245</code></pre>
+<pre class="r"><code>(ctable &lt;- coef(summary(mod5)))</code></pre>
+<pre><code>## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                                         Value Std. Error     t value
+## failedyes                         -1.39146287  0.2622101 -5.30667226
+## gooutlow                           0.59648735  0.2134306  2.79475999
+## romanticyes                       -0.50390805  0.2163229 -2.32942552
+## schoolsupyes                       0.03363511  0.8300358  0.04052249
+## first_gen_collegeyes              -0.85006782  0.2316595 -3.66947101
+## studytime                          0.29304592  0.1392885  2.10387705
+## schoolsupyes:studytime            -0.85318089  0.3244225 -2.62984500
+## schoolsupyes:first_gen_collegeyes  1.52425650  0.5719558  2.66498990
+## 0|4                               -2.69208825  0.4041720 -6.66074948
+## 4|5                               -2.65581637  0.4029201 -6.59142141
+## 5|6                               -2.48392676  0.3975209 -6.24854363
+## 6|7                               -2.13758424  0.3890606 -5.49421935
+## 7|8                               -1.94093740  0.3852119 -5.03862266
+## 8|9                               -1.35895482  0.3771508 -3.60321358
+## 9|10                              -0.98243182  0.3738798 -2.62766733
+## 10|11                             -0.33664864  0.3707238 -0.90808488
+## 11|12                              0.27441039  0.3708471  0.73995555
+## 12|13                              0.64181542  0.3718808  1.72586325
+## 13|14                              1.15140976  0.3751961  3.06882090
+## 14|15                              1.64894914  0.3823753  4.31238440
+## 15|16                              2.37070007  0.4008641  5.91397458
+## 16|17                              2.90477643  0.4244524  6.84358578
+## 17|18                              3.21877485  0.4439939  7.24959282
+## 18|19                              4.18096474  0.5449623  7.67202626
+## 19|20                              6.00685744  1.0635640  5.64785684</code></pre>
+<pre class="r"><code>p5 &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p5))</code></pre>
+<pre><code>##                                         Value Std. Error     t value
+## failedyes                         -1.39146287  0.2622101 -5.30667226
+## gooutlow                           0.59648735  0.2134306  2.79475999
+## romanticyes                       -0.50390805  0.2163229 -2.32942552
+## schoolsupyes                       0.03363511  0.8300358  0.04052249
+## first_gen_collegeyes              -0.85006782  0.2316595 -3.66947101
+## studytime                          0.29304592  0.1392885  2.10387705
+## schoolsupyes:studytime            -0.85318089  0.3244225 -2.62984500
+## schoolsupyes:first_gen_collegeyes  1.52425650  0.5719558  2.66498990
+## 0|4                               -2.69208825  0.4041720 -6.66074948
+## 4|5                               -2.65581637  0.4029201 -6.59142141
+## 5|6                               -2.48392676  0.3975209 -6.24854363
+## 6|7                               -2.13758424  0.3890606 -5.49421935
+## 7|8                               -1.94093740  0.3852119 -5.03862266
+## 8|9                               -1.35895482  0.3771508 -3.60321358
+## 9|10                              -0.98243182  0.3738798 -2.62766733
+## 10|11                             -0.33664864  0.3707238 -0.90808488
+## 11|12                              0.27441039  0.3708471  0.73995555
+## 12|13                              0.64181542  0.3718808  1.72586325
+## 13|14                              1.15140976  0.3751961  3.06882090
+## 14|15                              1.64894914  0.3823753  4.31238440
+## 15|16                              2.37070007  0.4008641  5.91397458
+## 16|17                              2.90477643  0.4244524  6.84358578
+## 17|18                              3.21877485  0.4439939  7.24959282
+## 18|19                              4.18096474  0.5449623  7.67202626
+## 19|20                              6.00685744  1.0635640  5.64785684
+##                                        p value
+## failedyes                         1.116447e-07
+## gooutlow                          5.193826e-03
+## romanticyes                       1.983653e-02
+## schoolsupyes                      9.676766e-01
+## first_gen_collegeyes              2.430529e-04
+## studytime                         3.538917e-02
+## schoolsupyes:studytime            8.542381e-03
+## schoolsupyes:first_gen_collegeyes 7.699064e-03
+## 0|4                               2.724347e-11
+## 4|5                               4.356354e-11
+## 5|6                               4.142975e-10
+## 6|7                               3.924425e-08
+## 7|8                               4.688939e-07
+## 8|9                               3.143071e-04
+## 9|10                              8.597255e-03
+## 10|11                             3.638334e-01
+## 11|12                             4.593270e-01
+## 12|13                             8.437202e-02
+## 13|14                             2.149054e-03
+## 14|15                             1.615033e-05
+## 15|16                             3.339494e-09
+## 16|17                             7.723504e-12
+## 17|18                             4.180264e-13
+## 18|19                             1.693003e-14
+## 19|20                             1.624604e-08</code></pre>
+<pre class="r"><code>(ci5 &lt;- confint(mod5))</code></pre>
+<pre><code>## Waiting for profiling to be done...
+## 
+## Re-fitting to get Hessian</code></pre>
+<pre><code>##                                         2.5 %      97.5 %
+## failedyes                         -1.91099915 -0.88183866
+## gooutlow                           0.17940546  1.01668340
+## romanticyes                       -0.92995496 -0.08125812
+## schoolsupyes                      -1.60642853  1.65956106
+## first_gen_collegeyes              -1.30698473 -0.39813983
+## studytime                          0.02039631  0.56697874
+## schoolsupyes:studytime            -1.49158352 -0.21490640
+## schoolsupyes:first_gen_collegeyes  0.40814640  2.65646321</code></pre>
+<p>This has resulted in an increase in the AIC, which is still lower than the first three models.</p>
+<p>Let’s check the accuracy of this model with interaction terms:</p>
+<pre class="r"><code>acc.ord4 &lt;- predict(mod4, training)
+ctable &lt;- table(training$G3, acc.ord4)
+round((sum(diag(ctable))/sum(ctable))*100,2)</code></pre>
+<pre><code>## [1] 19.94</code></pre>
+<pre class="r"><code>ctable</code></pre>
+<pre><code>##     acc.ord4
+##       0  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+##   0  18  0  0  0  0  0  0 10  3  0  1  0  1  0  0  0  0  0
+##   4   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   5   4  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0
+##   6   1  0  0  0  0  0  0 10  1  0  0  0  0  0  0  0  0  0
+##   7   4  0  0  0  0  0  0  1  1  0  0  0  2  0  0  0  0  0
+##   8  14  0  0  0  0  0  0  7  3  0  0  0  3  0  0  0  0  0
+##   9   8  0  0  0  0  0  0  4  6  0  2  0  0  0  0  0  0  0
+##   10  5  0  0  0  0  0  0 14 10  0  2  0  8  0  0  0  0  0
+##   11  5  0  0  0  0  0  0 13 15  0  1  0  6  0  0  0  0  0
+##   12  3  0  0  0  0  0  0  7  9  0  1  0  3  0  0  0  0  0
+##   13  4  0  0  0  0  0  0  5 10  0  3  0  6  0  0  0  0  0
+##   14  0  0  0  0  0  0  0  2  8  0  4  0  9  0  0  0  0  0
+##   15  0  0  0  0  0  0  0  3  8  0  1  0 13  0  0  0  0  0
+##   16  0  0  0  0  0  0  0  0  9  0  0  0  3  0  0  0  0  0
+##   17  0  0  0  0  0  0  0  0  3  0  0  0  2  0  0  0  0  0
+##   18  1  0  0  0  0  0  0  0  4  0  2  0  2  0  0  0  0  0
+##   19  0  0  0  0  0  0  0  0  2  0  0  0  3  0  0  0  0  0
+##   20  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0</code></pre>
+<p>The accuracy is even lower than mod3, at only 19.94% for the training set.</p>
+<p>Checking on testing set:</p>
+<pre class="r"><code>pred.ord3 &lt;- predict(mod3, testing)
+ctable &lt;- table(testing$G3, pred.ord3)
+round((sum(diag(ctable))/sum(ctable))*100,2)</code></pre>
+<pre><code>## [1] 8.86</code></pre>
+<pre class="r"><code>pred.ord4 &lt;- predict(mod4, testing)
+ctable &lt;- table(testing$G3, pred.ord4)
+round((sum(diag(ctable))/sum(ctable))*100,2)</code></pre>
+<pre><code>## [1] 11.39</code></pre>
+<pre class="r"><code>pred.ord5 &lt;- predict(mod5, testing)
+ctable &lt;- table(testing$G3, pred.ord5)
+round((sum(diag(ctable))/sum(ctable))*100,2)</code></pre>
+<pre><code>## [1] 10.13</code></pre>
+<p>Highly inaccurate model, not a good fit for the data.</p>
 </div>
 <div id="trees-etc" class="section level2">
 <h2>Trees etc</h2>
