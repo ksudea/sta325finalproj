@@ -203,6 +203,11 @@ names(data)
 num_cols <- unlist(lapply(data, is.numeric))
 quant_vars <- data[,num_cols]
 cor(quant_vars)
+<<<<<<< HEAD
+=======
+
+<<<<<<< HEAD
+>>>>>>> e4a3d761d0867a67e762903b9006ea581d916d2d
 #library(corr)
 #quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
 ```
@@ -278,9 +283,18 @@ Testing set:
 pred.ord <- predict(mod1, testing)
 
 ```
+<<<<<<< HEAD
 
 Model diagnostics:
 
 
 ## Trees etc
 
+=======
+=======
+library(corrr)
+quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
+```
+
+>>>>>>> 0a6976b7bda81be73e683d4929113d7a674dd332
+>>>>>>> e4a3d761d0867a67e762903b9006ea581d916d2d
