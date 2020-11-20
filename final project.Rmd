@@ -204,6 +204,7 @@ num_cols <- unlist(lapply(data, is.numeric))
 quant_vars <- data[,num_cols]
 cor(quant_vars)
 
+<<<<<<< HEAD
 #library(corr)
 #quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
 ```
@@ -275,3 +276,9 @@ How do you evaluate it??
 pred.ord <- predict(mod1, testing)
 
 ```
+=======
+library(corrr)
+quant_vars %>% correlate() %>% network_plot(min_cor=0.2)
+```
+
+>>>>>>> 0a6976b7bda81be73e683d4929113d7a674dd332
