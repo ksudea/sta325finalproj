@@ -255,6 +255,10 @@ summary(activelm)
 From this, we can see that there seem to be significant interaction effects between sex and schoolsup, sex and first_gen_college, sex and Mjob, schoolsup and absences, schoolsup and studytime, schoolsup and first_gen_college, absences and failed, failed and first_gen_college, Mjob and studytime, Mjob and first_gen_college, studytime and famsup. 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9466764a770ba7a7ce8f527a69dad2fafc25d2fa
 ## Multicategory ordinal logit model
 
 Due to the way grades are assigned as values between 0 and 20, we would like to consider G3 as an ordered categorical variable with 21 levels. This would allow us to fit a multicategory ordinal logistic model to the data. 
@@ -388,10 +392,13 @@ ctable <- table(testing$G3, pred.ord5)
 round((sum(diag(ctable))/sum(ctable))*100,2)
 
 
+<<<<<<< HEAD
 ```
 Highly inaccurate model, not a good fit for the data.
 
 
 ## Trees etc
 
+=======
+>>>>>>> 9466764a770ba7a7ce8f527a69dad2fafc25d2fa
 
