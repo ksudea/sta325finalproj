@@ -254,11 +254,68 @@ summary(activelm)
 
 From this, we can see that there seem to be significant interaction effects between sex and schoolsup, sex and first_gen_college, sex and Mjob, schoolsup and absences, schoolsup and studytime, schoolsup and first_gen_college, absences and failed, failed and first_gen_college, Mjob and studytime, Mjob and first_gen_college, studytime and famsup. 
 
+## Linear model on the training data set
 
-<<<<<<< HEAD
-=======
+```{r}
+base_lm_tr <- lm(G3 ~ . -G2 -G1 -ord_g3 -stable_learning_env, data = training)
+step.model_tr <- stepAIC(base_lm_tr, direction="both")
+AIC(step.model_tr)
+summary(step.model_tr)
 
->>>>>>> 9466764a770ba7a7ce8f527a69dad2fafc25d2fa
+
+```
+AIC of 1793.426 and adjusted R-squared of 0.2742.
+
+Active variables: goout, absences, first_gen_college, failed, freetime, romantic, famsup, schoolsup, studytime, famsize, sex. Let's explore these with interaction terms.
+
+```{r}
+activelm_tr <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + studytime + first_gen_college + famsup + famsize), data = training)
+summary(activelm_tr)
+AIC(activelm_tr)
+```
+AIC of 1801.82, Adjusted R-squared of 0.2389.
+
+Exploring multicollinearity with VIF:
+
+```{r}
+vif(activelm_tr)
+```
+Adding all interaction terms:
+
+```{r}
+interlm_tr <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + studytime + first_gen_college + famsup + famsize)^2, data = training)
+summary(interlm_tr)
+AIC(interlm_tr)
+
+```
+Significant interactions: absences*famsup, absences*failed schoolsup*first_gen_college, schoolsup*absences, schoolsup*studytime, sex*failed, sex*first_gen_college
+
+```{r}
+interlm_tr1 <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + studytime + first_gen_college + famsup + famsize + absences*famsup + absences*failed + schoolsup*first_gen_college + schoolsup*absences + schoolsup*studytime + sex*failed + sex*first_gen_college), data = training)
+summary(interlm_tr1)
+AIC(interlm_tr1)
+
+```
+Schoolsup seems to have a high correlation with first_gen_college and studytime. Absences hasa high correlation with failed. Both of these make sense intuitively. Sex and first_Gen_college seems to have a high correlation, which does not make much sense intuitively and should be explored further.
+
+Including only active variables and paring down the model:
+
+```{r}
+interlm_tr2 <- lm(G3 ~ (romantic + freetime + goout + failed + studytime + first_gen_college + famsup + famsize + absences*failed + schoolsup*first_gen_college + schoolsup*studytime + sex*first_gen_college), data = training)
+summary(interlm_tr2)
+AIC(interlm_tr2)
+
+```
+
+Using the model on the testing set:
+
+```{r}
+pred.lm <- predict(interlm_tr2, testing)
+pred.lm
+mse_test <- mean((pred.lm - testing$G3)^2)
+testing$G3
+mse_test
+```
 ## Multicategory ordinal logit model
 
 Due to the way grades are assigned as values between 0 and 20, we would like to consider G3 as an ordered categorical variable with 21 levels. This would allow us to fit a multicategory ordinal logistic model to the data. 
@@ -275,6 +332,13 @@ require(ggplot2)
 require(reshape2)
 require(MASS)
 require(Hmisc)
+
+mod <-polr(ord_g3 ~ . -G1 -G2 -G3, data = training)
+summary(mod)
+acc.ord <- predict(mod, training)
+ctable <- table(training$G3, acc.ord)
+round((sum(diag(ctable))/sum(ctable))*100,2)
+ctable
 
 mod1 <- polr(ord_g3 ~ failed + high_freq_absent + romantic + internet + goout + first_gen_college + Walc + sex + schoolsup + famsup + absences + studytime + higher, data = training)
 summary(mod1)
@@ -317,7 +381,7 @@ Based on the p-values and confidence intervals, romantic does not seem to be sig
 
 Pared-down model again: 
 ```{r}
-mod3 <- polr(ord_g3 ~ failed + goout + first_gen_college + sex + schoolsup + studytime, data = training)
+mod3 <- polr(ord_g3 ~ failed + goout + first_gen_college + sex + schoolsup + studytime, data = training, Hess=TRUE)
 summary(mod3)
 (ctable <- coef(summary(mod3)))
 p3 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
@@ -392,13 +456,12 @@ ctable <- table(testing$G3, pred.ord5)
 round((sum(diag(ctable))/sum(ctable))*100,2)
 
 
-<<<<<<< HEAD
 ```
+Accuracy rates are even lower, at 8.86%, 11.39%, and 10.13%. 
+
 Highly inaccurate model, not a good fit for the data.
 
 
 ## Trees etc
 
-=======
->>>>>>> 9466764a770ba7a7ce8f527a69dad2fafc25d2fa
 
