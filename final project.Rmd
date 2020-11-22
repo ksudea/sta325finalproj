@@ -477,7 +477,6 @@ data <- data %>%
 data <- data %>%
   mutate(cat_g3 = factor(cat_g3, levels=c("Poor", "Weak", "Sufficient", "Good", "Very Good", "Excellent"), ordered=TRUE))
 
-
 set.seed(3)
 train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
 test_ind_neg <- -train_ind
@@ -508,7 +507,7 @@ Random forest:
 
 ```{r}
 library(randomForest)
-rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3,data = ftrain,ntree=50, importance=TRUE) 
+rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3 -pf -failures -reason -Medu -Fedu,data = ftrain, mtry = 3, ntree=50, importance=TRUE) 
 print(rf.cat)
 importance(rf.cat)
 varImpPlot(rf.cat)
@@ -530,13 +529,13 @@ t
 sum(diag(t))/sum(t)
 
 ```
-39.2% accuracy, which is an improvement, but a low value.
+43.03% accuracy, which is an improvement.
 
 
 Let's choose the most important variables, as well as interaction effects we believe to be important based on previous exploration:
 
 ```{r}
-rf.cat1<-randomForest(cat_g3~failed + absences+ Mjob + studytime + goout + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college,data = ftrain, ntree=50, importance=TRUE) 
+rf.cat1<-randomForest(cat_g3~failed + absences + sex + age + Walc + Fjob +goout + schoolsup + first_gen_college + guardian + Walc,data = ftrain, ntree=50, importance=TRUE) 
 print(rf.cat1)
 importance(rf.cat1)
 varImpPlot(rf.cat1)
@@ -546,7 +545,7 @@ t
 sum(diag(t))/sum(t)
 
 ```
-Much worse fit for the data, 50.32% OOB estimate of error rate and 70.25% accuracy rate for the training data.
+50.63% OOB estimate of error rate and 87.6% accuracy rate for the training data.
 
 ```{r}
 rf.pred1<- predict(rf.cat1, ftest, type = 'class')
@@ -555,7 +554,10 @@ t
 sum(diag(t))/sum(t)
 
 ```
-38% Accuracy, which is less than the previous RF model.
+37.97% Accuracy, which is less than the full RF model.
+
+
+The RF models indicate that for grade categorization, the most important variables are absences, failed, guardian, studytime, Mjob and Fjob, schoolsup, age, goout, first_gen_college (not in that order).  
 
 
 ## Recoding binary response variable for pass-fail
@@ -572,10 +574,10 @@ data <- data %>%
   mutate(pf = factor(pf, levels=c("pass", "fail"), ordered = FALSE))
 
 set.seed(3)
-train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
-test_ind_neg <- -train_ind
-ftrain <- data[train_ind, ]
-ftest <- data[test_ind_neg, ]
+train_ind1 <- sample(x = nrow(data), size = 0.8 * nrow(data))
+test_ind_neg1 <- -train_ind1
+ftrain1 <- data[train_ind1, ]
+ftest1 <- data[test_ind_neg1, ]
 
 ```
 
@@ -593,20 +595,20 @@ library(rpart)
 Fitting with ALL predictors: 
 
 ```{r}
-rf.bin<-randomForest(pf~. -G1 -G2 -G3 -ord_g3 - cat_g3 -failures -reason -health -age -nursery,data = ftrain,mtry=3, ntree=50, importance=TRUE) 
+rf.bin<-randomForest(pf~. -G1 -G2 -G3 -ord_g3 - cat_g3 -failures -reason -health -age -nursery,data = ftrain1,mtry=3, ntree=50, importance=TRUE) 
 print(rf.bin)
 importance(rf.bin)
 varImpPlot(rf.bin)
-rf.acc<- predict(rf.bin, ftrain, type = 'class')
-t<-table(predictions=rf.acc, actual=ftrain$cat_g3)
+rf.acc<- predict(rf.bin, ftrain1, type = 'class')
+t<-table(predictions=rf.acc, actual=ftrain1$cat_g3)
 t
 sum(diag(t))/sum(t)
 
 ```
 Predictions on testing set:
 ```{r}
-rf.pred2<- predict(rf.bin, ftest, type = 'class')
-t<-table(predictions=rf.pred2, actual=ftest$pf)
+rf.pred2<- predict(rf.bin, ftest1, type = 'class')
+t<-table(predictions=rf.pred2, actual=ftest1$pf)
 t
 sum(diag(t))/sum(t)
 
@@ -616,12 +618,12 @@ sum(diag(t))/sum(t)
 Finding the best random forest model by including important predictors:
 
 ```{r}
-rf.bin<-randomForest(pf~failed + absences+ guardian + studytime + goout + schoolsup + first_gen_college + internet,data = ftrain,mtry=3, ntree=50, importance=TRUE) 
-print(rf.bin)
-importance(rf.bin)
-varImpPlot(rf.bin)
-rf.acc<- predict(rf.bin, ftrain, type = 'class')
-t<-table(predictions=rf.acc, actual=ftrain$cat_g3)
+rf.bin1<-randomForest(pf~failed + absences+ guardian + studytime + goout + schoolsup + first_gen_college + internet,data = ftrain1,mtry=3, ntree=50, importance=TRUE) 
+print(rf.bin1)
+importance(rf.bin1)
+varImpPlot(rf.bin1)
+rf.acc1<- predict(rf.bin1, ftrain1, type = 'class')
+t<-table(predictions=rf.acc1, actual=ftrain1$cat_g3)
 t
 sum(diag(t))/sum(t)
 
@@ -631,8 +633,8 @@ The pared-down model has an 00B estimate of error rate of 25.95% and a training 
 Predictions on testing set:
 
 ```{r}
-rf.pred3<- predict(rf.bin, ftest, type = 'class')
-t<-table(predictions=rf.pred3, actual=ftest$pf)
+rf.pred3<- predict(rf.bin1, ftest1, type = 'class')
+t<-table(predictions=rf.pred3, actual=ftest1$pf)
 t
 sum(diag(t))/sum(t)
 
@@ -641,3 +643,4 @@ sum(diag(t))/sum(t)
 72.15% prediction accuracy rate.
 
 Overall the random-forests for pass-fail indicate that the most important factors affecting whether the student passes/fails are failed, absences, guardian, studytime, goout, schoolsup, first_gen_college, internet.
+
