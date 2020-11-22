@@ -15,6 +15,14 @@ library(knitr)
 library(nnet)
 library(ggplot2)
 library(MASS)
+require(foreign)
+require(nnet)
+require(reshape2)
+require(Hmisc)
+library(randomForest)
+library(tree)
+library(rpart)
+
 ```
 
 ### Introduction
@@ -238,21 +246,58 @@ cor(quant_vars)
 ```
 
 
-## Splitting data into training and testing sets
+## Creating variables for an ordinal final grade, 6-category final grade, and binary final grade
+
+We'd like to examine final grades in multiple ways. The first is as a continuous numerical variable as G3 is.
+
+The second is final grades as an ordered factor variable in order to perform multicategory ordinal logit modeling to see if we could improve fit and predictive power. However, this was unsuccessful.
 
 ```{r}
 data <- data %>%
   mutate(ord_g3 = factor(G3, ordered=T)
   )
-data$ord_g3
+
+```
+The third is final grades as a 6-category ordered factor variable according to the Portuguese education system's classifications. We believe this could address some of the outliers and abnormality in the data (for example, many students received 0's, but no one received a 1, 2, or 3).
+
+```{r}
+library(car)
+data <- data %>%
+  mutate(cat_g3 = case_when(
+    G3 == 0 ~ "Poor",
+    G3 <= 9 ~ "Weak",
+    G3 <= 13 ~ "Sufficient",
+    G3 <= 15 ~ "Good",
+    G3 <= 17 ~"Very Good",
+    G3 <= 20 ~ "Excellent"
+  ))
+data <- data %>%
+  mutate(cat_g3 = factor(cat_g3, levels=c("Poor", "Weak", "Sufficient", "Good", "Very Good", "Excellent"), ordered=TRUE))
+
+```
+
+The fourth is final grades as a binary factor variable. This is done based on the previous categories in the Portuguese classification system. If the student receives a "poor" or "weak" grade, or G3 < 10, this is considered a "low" grade. If the student received a "sufficient" "good" "very good" or "excellent" grade, this is a high grade. 
+
+```{r}
+data <- data %>%
+  mutate(pf = case_when(
+    G3 >= 10 ~ "high",
+    G3 < 10 ~ "low"
+  ))
+data <- data %>%
+  mutate(pf = factor(pf, levels=c("high", "low"), ordered = FALSE))
+
+```
+
+## Splitting data into training and testing sets
+
+```{r}
 attach(data)
 set.seed(3)
 train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
 test_ind_neg <- -train_ind
 training <- data[train_ind, ]
 testing <- data[test_ind_neg, ]
-training
-testing
 
 ```
 
@@ -261,21 +306,21 @@ testing
 
 
 ```{r}
-base_lm <- lm(G3 ~ . -G2 -G1 -ord_g3 -stable_learning_env, data)
+base_lm <- lm(G3 ~ . -G2 -G1 -ord_g3 -cat_g3 -pf, data=training)
 summary(base_lm)
 
 step.model <- stepAIC(base_lm, direction="both")
 summary(step.model)
 ```
 
-From fitting the base variables in a linear model, we can see that the variables sex, schoolsup, famsup, romantic, freetime, goout, absences, and failed are active. 
+Based on the backwards stepwise regression model, we can see that the variables sex, famsize, Mjob, studytime, schoolsup, romantic, freetime, goout, absences, first_gen_college, stable_learning_environment failed are active. 
+Multiple R-squared:  0.3105,	Adjusted R-squared:  0.2687 
 
-Based on the backwards stepwise regression model, it seems that the variables sex, Mjob, studytime, higher, romantic, freetime, goout, absences, first_gen_college, famsup, failed.
 
 Based on these active variables, some interactions that we think could be significant are: schoolsup*failed, famsup*first_gen_college, higher*first_gen_college.
 
 ```{r}
-activelm <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + Mjob + studytime + higher + first_gen_college + famsup)^2)
+activelm <- lm(G3 ~ (sex + famsize + Mjob + studytime + schoolsup + romantic + freetime + goout + absences + first_gen_college + stable_learning_env)^2, data=training)
 
 summary(activelm)
 ```
@@ -382,14 +427,8 @@ Fitting the base model:
 
 ```{r}
 
-require(foreign)
-require(nnet)
-require(ggplot2)
-require(reshape2)
-require(MASS)
-require(Hmisc)
 
-mod <-polr(ord_g3 ~ . -G1 -G2 -G3, data = training)
+mod <-polr(ord_g3 ~ . -G1 -G2 -G3 -cat_g3 -pf, data = training)
 summary(mod)
 acc.ord <- predict(mod, training)
 ctable <- table(training$G3, acc.ord)
@@ -517,22 +556,9 @@ Accuracy rates are even lower, at 8.86%, 11.39%, and 10.13%.
 Highly inaccurate model, not a good fit for the data.
 
 
-## Recoding g3 with larger categories
+## 6-category grades modeling
 
 ```{r}
-library(car)
-data <- data %>%
-  mutate(cat_g3 = case_when(
-    G3 == 0 ~ "Poor",
-    G3 <= 9 ~ "Weak",
-    G3 <= 13 ~ "Sufficient",
-    G3 <= 15 ~ "Good",
-    G3 <= 17 ~"Very Good",
-    G3 <= 20 ~ "Excellent"
-  ))
-data <- data %>%
-  mutate(cat_g3 = factor(cat_g3, levels=c("Poor", "Weak", "Sufficient", "Good", "Very Good", "Excellent"), ordered=TRUE))
-
 set.seed(3)
 train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
 test_ind_neg <- -train_ind
@@ -562,8 +588,7 @@ Still not very accurate for the training
 Random forest:
 
 ```{r}
-library(randomForest)
-rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3 -famsup -internet -Medu -Fedu,data = ftrain, mtry = 3, ntree=50, importance=TRUE) 
+rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3 -pf -famsup -internet -Medu -Fedu,data = ftrain, mtry = 3, ntree=50, importance=TRUE) 
 print(rf.cat)
 importance(rf.cat)
 varImpPlot(rf.cat)
@@ -616,19 +641,11 @@ sum(diag(t))/sum(t)
 The RF models indicate that for grade categorization, the most important variables are absences, failed, guardian, studytime, Mjob and Fjob, schoolsup, age, goout, first_gen_college (not in that order).  
 
 
-## Recoding binary response variable for pass-fail
+## Modeling for low-high grades 
 
-Considering final grades as a continuous variable and ordinal categorical variable gave poor results. Therefore, we'd like to model a binary variable that indicates whether the student passes (grade >= 10) or fails (<10). 
+Considering final grades as a continuous variable and ordinal categorical variable gave poor results. Therefore, we'd like to model a binary variable that indicates whether the student has a high grade (grade >= 10) or low grade (<10). 
 
 ```{r}
-data <- data %>%
-  mutate(pf = case_when(
-    G3 >= 10 ~ "pass",
-    G3 < 10 ~ "fail"
-  ))
-data <- data %>%
-  mutate(pf = factor(pf, levels=c("pass", "fail"), ordered = FALSE))
-
 set.seed(3)
 train_ind1 <- sample(x = nrow(data), size = 0.8 * nrow(data))
 test_ind_neg1 <- -train_ind1
@@ -640,8 +657,6 @@ ftest1 <- data[test_ind_neg1, ]
 ## Fitting a decision tree on pass-fail
 
 ```{r}
-library(tree)
-library(rpart)
 
 data[["pf"]] <- as.factor(data[["pf"]])
 training[["pf"]] <- as.factor(training[["pf"]])
@@ -653,7 +668,7 @@ plot(treepf)
 text(treepf, pretty = 0)
 ```
 
-## Initial Tree Diagnostic
+### Initial Tree Diagnostic
 
 ```{r}
 tree.pred <- predict(treepf, testing, type = "class")
@@ -747,7 +762,7 @@ Not much difference.
 
 
 
-## Fitting random forest on pass-fail 
+### Fitting random forest on low-high binary
 
 Fitting with ALL predictors: 
 
