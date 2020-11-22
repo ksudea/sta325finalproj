@@ -230,9 +230,8 @@ testing
 ```
 
 
-## Linear model
+## Linear model -- note this is incorrect, should be on training set
 
-Modeling, diagnostics, predictions
 
 ```{r}
 base_lm <- lm(G3 ~ . -G2 -G1 -ord_g3 -stable_learning_env, data)
@@ -314,6 +313,36 @@ mse_test <- mean((pred.lm - testing$G3)^2)
 testing$G3
 mse_test
 ```
+
+## Regression random forest
+
+```{r}
+library(randomForest)
+reg.rf <- randomForest(G3 ~ . -G1 -G2 -G3 -ord_g3 -famsup -internet -Medu -Fedu, data=training, mtry=3,
+                         importance=TRUE, na.action=na.omit)
+print(reg.rf)
+importance(reg.rf)
+varImpPlot(reg.rf)
+yhat_rf <- predict(reg.rf, newdata = testing)
+mse_test.rf <- mean((yhat_rf - testing$G3)^2)
+
+mse_test.rf
+```
+Improved test MSE compared to the linear model. test MSE = 14.085. 28.5% variation explained; mean of squared residuals is 15.7.
+
+```{r}
+reg.rf1 <- randomForest(G3 ~ failed + absences + schoolsup + first_gen_college + age + studytime + famsize + guardian + freetime + Mjob + romantic + traveltime + sex + goout, data=training, mtry=3,
+                         importance=TRUE, na.action=na.omit)
+print(reg.rf1)
+importance(reg.rf1)
+varImpPlot(reg.rf1)
+yhat_rf1 <- predict(reg.rf1, newdata = testing)
+mse_test.rf1 <- mean((yhat_rf1 - testing$G3)^2)
+
+mse_test.rf1
+
+```
+Test MSE of 14.973; 32.4% of var explained by model; mean of squared residuals: 14.86
 
 
 ## Multicategory ordinal logit model
@@ -507,7 +536,7 @@ Random forest:
 
 ```{r}
 library(randomForest)
-rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3 -pf -failures -reason -Medu -Fedu,data = ftrain, mtry = 3, ntree=50, importance=TRUE) 
+rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3 -famsup -internet -Medu -Fedu,data = ftrain, mtry = 3, ntree=50, importance=TRUE) 
 print(rf.cat)
 importance(rf.cat)
 varImpPlot(rf.cat)
@@ -535,7 +564,7 @@ sum(diag(t))/sum(t)
 Let's choose the most important variables, as well as interaction effects we believe to be important based on previous exploration:
 
 ```{r}
-rf.cat1<-randomForest(cat_g3~failed + absences + sex + age + Walc + Fjob +goout + schoolsup + first_gen_college + guardian + Walc,data = ftrain, ntree=50, importance=TRUE) 
+rf.cat1<-randomForest(cat_g3~failures + absences + sex + Walc + Fjob +goout + schoolsup + first_gen_college + guardian + Walc,data = ftrain, ntree=50, importance=TRUE) 
 print(rf.cat1)
 importance(rf.cat1)
 varImpPlot(rf.cat1)
@@ -545,7 +574,7 @@ t
 sum(diag(t))/sum(t)
 
 ```
-50.63% OOB estimate of error rate and 87.6% accuracy rate for the training data.
+54.75% OOB estimate of error rate and 83.5% accuracy rate for the training data.
 
 ```{r}
 rf.pred1<- predict(rf.cat1, ftest, type = 'class')
@@ -595,12 +624,12 @@ library(rpart)
 Fitting with ALL predictors: 
 
 ```{r}
-rf.bin<-randomForest(pf~. -G1 -G2 -G3 -ord_g3 - cat_g3 -failures -reason -health -age -nursery,data = ftrain1,mtry=3, ntree=50, importance=TRUE) 
+rf.bin<-randomForest(pf~. -G1 -G2 -G3 -ord_g3 - cat_g3 -Medu -Fedu,data = ftrain1,mtry=3, ntree=50, importance=TRUE) 
 print(rf.bin)
 importance(rf.bin)
 varImpPlot(rf.bin)
 rf.acc<- predict(rf.bin, ftrain1, type = 'class')
-t<-table(predictions=rf.acc, actual=ftrain1$cat_g3)
+t<-table(predictions=rf.acc, actual=ftrain1$pf)
 t
 sum(diag(t))/sum(t)
 
@@ -618,17 +647,17 @@ sum(diag(t))/sum(t)
 Finding the best random forest model by including important predictors:
 
 ```{r}
-rf.bin1<-randomForest(pf~failed + absences+ guardian + studytime + goout + schoolsup + first_gen_college + internet,data = ftrain1,mtry=3, ntree=50, importance=TRUE) 
+rf.bin1<-randomForest(pf~failed + absences+ guardian + studytime + goout + schoolsup + first_gen_college + Walc + famsup,data = ftrain1,mtry=3, ntree=50, importance=TRUE) 
 print(rf.bin1)
 importance(rf.bin1)
 varImpPlot(rf.bin1)
 rf.acc1<- predict(rf.bin1, ftrain1, type = 'class')
-t<-table(predictions=rf.acc1, actual=ftrain1$cat_g3)
+t<-table(predictions=rf.acc1, actual=ftrain1$pf)
 t
 sum(diag(t))/sum(t)
 
 ```
-The pared-down model has an 00B estimate of error rate of 25.95% and a training set prediction accuracy rate of 89.6%.
+The pared-down model has an 00B estimate of error rate of 25.95% and a training set prediction accuracy rate of 90.19%.
 
 Predictions on testing set:
 
@@ -642,5 +671,6 @@ sum(diag(t))/sum(t)
 
 72.15% prediction accuracy rate.
 
-Overall the random-forests for pass-fail indicate that the most important factors affecting whether the student passes/fails are failed, absences, guardian, studytime, goout, schoolsup, first_gen_college, internet.
+Overall the random-forests for pass-fail indicate that the most important factors affecting whether the student passes/fails are failed, absences, guardian, studytime, goout, schoolsup, first_gen_college.
+
 
