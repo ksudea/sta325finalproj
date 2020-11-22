@@ -467,16 +467,14 @@ Highly inaccurate model, not a good fit for the data.
 library(car)
 data <- data %>%
   mutate(cat_g3 = case_when(
-    G3 == 0 ~ "0-3",
-    G3 == 4 | G3 == 5 | G3 == 6 | G3 == 7 ~ "4-7",
-    G3 == 8 | G3 == 9 | G3 == 10 | G3 == 11 ~ "8-11",
-    G3 == 12 | G3 == 13 | G3 == 14 | G3 == 15 ~ "12-15",
-    G3 == 16 | G3 == 17 | G3 == 18 | G3 == 19 | G3 == 20 ~"16-20"
+    G3 > 3.5 ~ "Poor",
+    9.5 > G3 && G3 >= 3.5 ~ "Weak",
+    13.5 > G3 && G3 >= 9.5 ~ "Sufficient",
+    15.5 > G3 && G3 >= 13.5 ~ "Good",
+    17.5 > G3 && G3 >= 15.5 ~"Very Good",
+    20 >= G3 && G3 >= 17.5 ~ "Excellent"
   ))
 
-
-data <- data %>%
-  mutate(cat_g3 = factor(cat_g3, levels=c("0-3", "4-7", "8-11", "12-15", "16-20"), ordered=TRUE))
 
 attach(data)
 set.seed(3)
@@ -505,6 +503,34 @@ ctable
 ```
 Still not very accurate for the training with 
 
-## Trees etc
+
+## Recoding binary response variable for pass-fail
+
+Considering final grades as a continuous variable and ordinal categorical variable gave poor results. Therefore, we'd like to model a binary variable that indicates whether the student passes (grade >= 10) or fails (<10). 
+
+```{r}
+data <- data %>%
+  mutate(pf = case_when(
+    G3 >= 10 ~ "pass",
+    G3 < 10 ~ "fail"
+  ))
+
+
+```
+
+## Fitting a decision tree on pass-fail
+
+```{r}
+library(tree)
+library(rpart)
+
+```
+
+Predictors chosen from EDA and previous exploration: 
+
+
+```{r}
+
+```
 
 
