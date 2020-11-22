@@ -302,95 +302,74 @@ testing <- data[test_ind_neg, ]
 ```
 
 
-## Linear model -- note this is incorrect, should be on training set
+## Linear model
 
 
 ```{r}
 base_lm <- lm(G3 ~ . -G2 -G1 -ord_g3 -cat_g3 -pf, data=training)
+vif(base_lm)
 summary(base_lm)
 
-step.model <- stepAIC(base_lm, direction="both")
-summary(step.model)
 ```
+From the vif, it is easy to see that stable_learning_env and famsup have high VIF values. This is likely because famsup and was used to create stable_learning_env. Failures and failed also have higher VIF values, likely because failures was used to create failed. Because we believe that failures is much more explanatory than failed, we will choose to include failures in the model. In order to combat multicollinearity and increase interpretability, we will exclude Medu and Fedu as well from the model, as these were used to create first_gen_college. 
 
-Based on the backwards stepwise regression model, we can see that the variables sex, famsize, Mjob, studytime, schoolsup, romantic, freetime, goout, absences, first_gen_college, stable_learning_environment failed are active. 
-Multiple R-squared:  0.3105,	Adjusted R-squared:  0.2687 
-
-
-Based on these active variables, some interactions that we think could be significant are: schoolsup*failed, famsup*first_gen_college, higher*first_gen_college.
+We will then perform stepwise selection.
 
 ```{r}
-activelm <- lm(G3 ~ (sex + famsize + Mjob + studytime + schoolsup + romantic + freetime + goout + absences + first_gen_college + stable_learning_env)^2, data=training)
+base_lm1 <- lm(G3 ~ . -G2 -G1 -ord_g3 -cat_g3 -pf -famsup -failed -Medu -Fedu, data=training)
+vif(base_lm1)
+summary(base_lm1)
+step.model <- stepAIC(base_lm1, direction="both")
+summary(step.model)
+
+
+```
+The new base model had Multiple R-squared:  0.3105,	Adjusted R-squared:  0.2687. It had low VIF values for all predictors.
+
+The model chosen by stepwise selection has Multiple R-squared:  0.3214,	Adjusted R-squared:  0.2753.
+
+Based on the stepwise regression model, we can see that the variables sex, studytime, failures, schoolsup, romantic, internet, freetime, goout, absences, first_gen_college, stable_learning_environment seem to be significant active predictors. 
+
+
+
+Based on these active variables, some interactions that we think could be significant are: schoolsup*failed, famsup*first_gen_college, higher*first_gen_college. Let us fit an active model with all interaction effects.
+
+```{r}
+activelm <- lm(G3 ~ (sex + studytime + failures + schoolsup + internet + romantic + freetime + 
+    goout + absences + first_gen_college + stable_learning_env)^2, data=training)
 
 summary(activelm)
 ```
+Significant interactions exist between failures and absences, first_gen_college and failures, absences and stable_learning_env, schoolsup and absences, schoolsup and first_gen_college, sex and first_gen_college, sex and failures, studytime and schoolsup. 
+Interestingly, in this model, the most active predictors that are not interaction terms are first_gen_college and stable_learning_env.
 
-From this, we can see that there seem to be significant interaction effects between sex and schoolsup, sex and first_gen_college, sex and Mjob, schoolsup and absences, schoolsup and studytime, schoolsup and first_gen_college, absences and failed, failed and first_gen_college, Mjob and studytime, Mjob and first_gen_college, studytime and famsup. 
-
-## Linear model on the training data set
-
-```{r}
-base_lm_tr <- lm(G3 ~ . -G2 -G1 -ord_g3 -stable_learning_env, data = training)
-step.model_tr <- stepAIC(base_lm_tr, direction="both")
-AIC(step.model_tr)
-summary(step.model_tr)
-
-
-```
-AIC of 1793.426 and adjusted R-squared of 0.2742.
-
-Active variables: goout, absences, first_gen_college, failed, freetime, romantic, famsup, schoolsup, studytime, famsize, sex. Let's explore these with interaction terms.
+Fitting a pared-down active model with interaction effects:
 
 ```{r}
-activelm_tr <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + studytime + first_gen_college + famsup + famsize), data = training)
-summary(activelm_tr)
-AIC(activelm_tr)
+inter_lm <- lm(G3 ~ first_gen_college + stable_learning_env + failures * absences + first_gen_college*failures + absences*stable_learning_env + schoolsup * absences + schoolsup*first_gen_college + sex*first_gen_college + sex*failures + studytime * schoolsup, data = training)
+summary(inter_lm)
+AIC(inter_lm)
 ```
-AIC of 1801.82, Adjusted R-squared of 0.2389.
 
-Adding all interaction terms:
-
-```{r}
-interlm_tr <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + studytime + first_gen_college + famsup + famsize)^2, data = training)
-summary(interlm_tr)
-AIC(interlm_tr)
-
-```
-Significant interactions: absences*famsup, absences*failed schoolsup*first_gen_college, schoolsup*absences, schoolsup*studytime, sex*failed, sex*first_gen_college
-
-```{r}
-interlm_tr1 <- lm(G3 ~ (sex + schoolsup + romantic + freetime + goout + absences + failed + studytime + first_gen_college + famsup + famsize + absences*famsup + absences*failed + schoolsup*first_gen_college + schoolsup*absences + schoolsup*studytime + sex*failed + sex*first_gen_college), data = training)
-summary(interlm_tr1)
-AIC(interlm_tr1)
-
-```
-Schoolsup seems to have a high correlation with first_gen_college and studytime. Absences hasa high correlation with failed. Both of these make sense intuitively. Sex and first_Gen_college seems to have a high correlation, which does not make much sense intuitively and should be explored further.
-
-Including only active variables and paring down the model:
-
-```{r}
-interlm_tr2 <- lm(G3 ~ (romantic + freetime + goout + failed + studytime + first_gen_college + famsup + famsize + absences*failed + schoolsup*first_gen_college + schoolsup*studytime + sex*first_gen_college), data = training)
-summary(interlm_tr2)
-AIC(interlm_tr2)
-
-```
-AIC of 1767.442, Adjusted R-squared of 0.3255.
+Unfortunately even with interaction effects, the Multiple R-squared:  0.3049,	Adjusted R-squared:  0.2701 and AIC is 1792.389. T
 
 Using the model on the testing set:
 
 ```{r}
-pred.lm <- predict(interlm_tr2, testing)
-pred.lm
+pred.lm <- predict(inter_lm, testing)
 mse_test <- mean((pred.lm - testing$G3)^2)
-testing$G3
 mse_test
 ```
+Test MSE of 16.7167.
 
-## Regression random forest
+
+### Regression random forest
+
+The linear model did not seem a good fit to the data. Let us try a regression random forest. Because we would prefer simpler categories in this case, we will exclude variables that have been recoded as stable_learning_env and first_gen_college. We will also include failed instead of failures.
 
 ```{r}
 library(randomForest)
-reg.rf <- randomForest(G3 ~ . -G1 -G2 -G3 -ord_g3 -famsup -internet -Medu -Fedu, data=training, mtry=3,
+reg.rf <- randomForest(G3 ~ . -G1 -G2 -G3 -ord_g3 -pf -cat_g3 -famsup -internet -failures -Medu -Fedu, data=training, mtry=3,
                          importance=TRUE, na.action=na.omit)
 print(reg.rf)
 importance(reg.rf)
@@ -400,10 +379,12 @@ mse_test.rf <- mean((yhat_rf - testing$G3)^2)
 
 mse_test.rf
 ```
-Improved test MSE compared to the linear model. test MSE = 14.085. 28.5% variation explained; mean of squared residuals is 15.7.
+Improved test MSE compared to the linear model. test MSE = 13.90083 24.94% variation explained; mean of squared residuals is 16.5.
+
+A pared-down random forest fit with the most important predictors according to Node purity and % increase in MSE.
 
 ```{r}
-reg.rf1 <- randomForest(G3 ~ failed + absences + schoolsup + first_gen_college + age + studytime + famsize + guardian + freetime + Mjob + romantic + traveltime + sex + goout, data=training, mtry=3,
+reg.rf1 <- randomForest(G3 ~ failed + absences + schoolsup + first_gen_college + age + studytime + Pstatus + famsize + guardian + freetime + Mjob + romantic + paid + sex + goout, data=training, mtry=3,
                          importance=TRUE, na.action=na.omit)
 print(reg.rf1)
 importance(reg.rf1)
@@ -414,8 +395,15 @@ mse_test.rf1 <- mean((yhat_rf1 - testing$G3)^2)
 mse_test.rf1
 
 ```
-Test MSE of 14.973; 32.4% of var explained by model; mean of squared residuals: 14.86
+Test MSE of 14.39569; 30.49% of var explained by model; mean of squared residuals: 15.28173.
 
+Overall, the random forest on regression has improved Test MSE compared to linear modeling, but still has a relatively poor fit. This indicates that perhaps considering G3 as a continuous response variable is inadequate to examine relationships between final grades and other variables.
+
+The 4 most important factors seem to be:
+failed
+absences
+schoolsup
+first_gen_college
 
 ## Multicategory ordinal logit model
 
