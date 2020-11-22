@@ -505,6 +505,34 @@ ctable
 ```
 Still not very accurate for the training with 
 
-## Trees etc
+
+## Recoding binary response variable for pass-fail
+
+Considering final grades as a continuous variable and ordinal categorical variable gave poor results. Therefore, we'd like to model a binary variable that indicates whether the student passes (grade >= 10) or fails (<10). 
+
+```{r}
+data <- data %>%
+  mutate(pf = case_when(
+    G3 >= 10 ~ "pass",
+    G3 < 10 ~ "fail"
+  ))
+
+
+```
+
+## Fitting a decision tree on pass-fail
+
+```{r}
+library(tree)
+library(rpart)
+
+```
+
+Predictors chosen from EDA and previous exploration: 
+
+
+```{r}
+
+```
 
 
