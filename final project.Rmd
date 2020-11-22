@@ -467,16 +467,17 @@ Highly inaccurate model, not a good fit for the data.
 library(car)
 data <- data %>%
   mutate(cat_g3 = case_when(
-    G3 > 3.5 ~ "Poor",
-    9.5 > G3 && G3 >= 3.5 ~ "Weak",
-    13.5 > G3 && G3 >= 9.5 ~ "Sufficient",
-    15.5 > G3 && G3 >= 13.5 ~ "Good",
-    17.5 > G3 && G3 >= 15.5 ~"Very Good",
-    20 >= G3 && G3 >= 17.5 ~ "Excellent"
+    G3 == 0 ~ "Poor",
+    G3 <= 9 ~ "Weak",
+    G3 <= 13 ~ "Sufficient",
+    G3 <= 15 ~ "Good",
+    G3 <= 17 ~"Very Good",
+    G3 <= 20 ~ "Excellent"
   ))
+data <- data %>%
+  mutate(cat_g3 = factor(cat_g3, levels=c("Poor", "Weak", "Sufficient", "Good", "Very Good", "Excellent"), ordered=TRUE))
 
 
-attach(data)
 set.seed(3)
 train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
 test_ind_neg <- -train_ind
@@ -501,7 +502,60 @@ ctable <- table(ftrain$cat_g3, acc.ord6)
 ctable
 
 ```
-Still not very accurate for the training with 
+Still not very accurate for the training
+
+Random forest:
+
+```{r}
+library(randomForest)
+rf.cat<-randomForest(cat_g3~. -G1 -G2 -G3 -ord_g3,data = ftrain,ntree=50, importance=TRUE) 
+print(rf.cat)
+importance(rf.cat)
+varImpPlot(rf.cat)
+rf.acc<- predict(rf.cat, ftrain, type = 'class')
+t<-table(predictions=rf.acc, actual=ftrain$cat_g3)
+t
+sum(diag(t))/sum(t)
+
+```
+
+Very fitted model with accuracy for training data >99%.
+
+Let's see what the accuracy rate for the testing set is:
+
+```{r}
+rf.pred<- predict(rf.cat, ftest, type = 'class')
+t<-table(predictions=rf.pred, actual=ftest$cat_g3)
+t
+sum(diag(t))/sum(t)
+
+```
+39.2% accuracy, which is an improvement, but a low value.
+
+
+Let's choose the most important variables, as well as interaction effects we believe to be important based on previous exploration:
+
+```{r}
+rf.cat1<-randomForest(cat_g3~failed + absences+ Mjob + studytime + goout + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college,data = ftrain, ntree=50, importance=TRUE) 
+print(rf.cat1)
+importance(rf.cat1)
+varImpPlot(rf.cat1)
+rf.acc<- predict(rf.cat1, ftrain, type = 'class')
+t<-table(predictions=rf.acc, actual=ftrain$cat_g3)
+t
+sum(diag(t))/sum(t)
+
+```
+Much worse fit for the data, 50.32% OOB estimate of error rate and 70.25% accuracy rate for the training data.
+
+```{r}
+rf.pred1<- predict(rf.cat1, ftest, type = 'class')
+t<-table(predictions=rf.pred1, actual=ftest$cat_g3)
+t
+sum(diag(t))/sum(t)
+
+```
+38% Accuracy, which is less than the previous RF model.
 
 
 ## Recoding binary response variable for pass-fail
@@ -514,7 +568,14 @@ data <- data %>%
     G3 >= 10 ~ "pass",
     G3 < 10 ~ "fail"
   ))
+data <- data %>%
+  mutate(pf = factor(pf, levels=c("pass", "fail"), ordered = FALSE))
 
+set.seed(3)
+train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
+test_ind_neg <- -train_ind
+ftrain <- data[train_ind, ]
+ftest <- data[test_ind_neg, ]
 
 ```
 
@@ -526,11 +587,57 @@ library(rpart)
 
 ```
 
-Predictors chosen from EDA and previous exploration: 
 
+## Fitting random forest on pass-fail 
+
+Fitting with ALL predictors: 
 
 ```{r}
+rf.bin<-randomForest(pf~. -G1 -G2 -G3 -ord_g3 - cat_g3 -failures -reason -health -age -nursery,data = ftrain,mtry=3, ntree=50, importance=TRUE) 
+print(rf.bin)
+importance(rf.bin)
+varImpPlot(rf.bin)
+rf.acc<- predict(rf.bin, ftrain, type = 'class')
+t<-table(predictions=rf.acc, actual=ftrain$cat_g3)
+t
+sum(diag(t))/sum(t)
+
+```
+Predictions on testing set:
+```{r}
+rf.pred2<- predict(rf.bin, ftest, type = 'class')
+t<-table(predictions=rf.pred2, actual=ftest$pf)
+t
+sum(diag(t))/sum(t)
+
+```
+72.15% accuracy rate.
+
+Finding the best random forest model by including important predictors:
+
+```{r}
+rf.bin<-randomForest(pf~failed + absences+ guardian + studytime + goout + schoolsup + first_gen_college + internet,data = ftrain,mtry=3, ntree=50, importance=TRUE) 
+print(rf.bin)
+importance(rf.bin)
+varImpPlot(rf.bin)
+rf.acc<- predict(rf.bin, ftrain, type = 'class')
+t<-table(predictions=rf.acc, actual=ftrain$cat_g3)
+t
+sum(diag(t))/sum(t)
+
+```
+The pared-down model has an 00B estimate of error rate of 25.95% and a training set prediction accuracy rate of 89.6%.
+
+Predictions on testing set:
+
+```{r}
+rf.pred3<- predict(rf.bin, ftest, type = 'class')
+t<-table(predictions=rf.pred3, actual=ftest$pf)
+t
+sum(diag(t))/sum(t)
 
 ```
 
+72.15% prediction accuracy rate.
 
+Overall the random-forests for pass-fail indicate that the most important factors affecting whether the student passes/fails are failed, absences, guardian, studytime, goout, schoolsup, first_gen_college, internet.
