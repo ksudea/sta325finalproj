@@ -1,6 +1,8 @@
 ---
 title: "Final Project"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -275,11 +277,6 @@ AIC(activelm_tr)
 ```
 AIC of 1801.82, Adjusted R-squared of 0.2389.
 
-Exploring multicollinearity with VIF:
-
-```{r}
-vif(activelm_tr)
-```
 Adding all interaction terms:
 
 ```{r}
@@ -306,6 +303,7 @@ summary(interlm_tr2)
 AIC(interlm_tr2)
 
 ```
+AIC of 1767.442, Adjusted R-squared of 0.3255.
 
 Using the model on the testing set:
 
@@ -316,6 +314,8 @@ mse_test <- mean((pred.lm - testing$G3)^2)
 testing$G3
 mse_test
 ```
+
+
 ## Multicategory ordinal logit model
 
 Due to the way grades are assigned as values between 0 and 20, we would like to consider G3 as an ordered categorical variable with 21 levels. This would allow us to fit a multicategory ordinal logistic model to the data. 
@@ -359,11 +359,10 @@ Confidence intervals for parameter estimates:
 
 ```
 
-Analyzing the p-values and confidence intervals allows us to determine whether the coefficient estimates are significant. Based on these, failed, romantic, goout, first_gen_college, sex, schoolsup, famsup seem to be active. (Studytime is dubious, but we will include it in the next model)
+Analyzing the p-values and confidence intervals allows us to determine whether the coefficient estimates are significant. Based on these, failed, romantic, goout, first_gen_college, sex, schoolsup, famsup, studytime seem to be active. (Studytime is dubious, but we will include it in the next model)
 
 Refitting a model with these predictors:
 
-(Note: AIC is lower with studytime than without, and studytime seems significant.)
 
 ```{r}
 mod2 <- polr(ord_g3 ~ failed + romantic + goout + first_gen_college + studytime + sex + schoolsup + famsup, data = training)
@@ -461,6 +460,50 @@ Accuracy rates are even lower, at 8.86%, 11.39%, and 10.13%.
 
 Highly inaccurate model, not a good fit for the data.
 
+
+## Recoding g3 with larger categories
+
+```{r}
+library(car)
+data <- data %>%
+  mutate(cat_g3 = case_when(
+    G3 == 0 ~ "0-3",
+    G3 == 4 | G3 == 5 | G3 == 6 | G3 == 7 ~ "4-7",
+    G3 == 8 | G3 == 9 | G3 == 10 | G3 == 11 ~ "8-11",
+    G3 == 12 | G3 == 13 | G3 == 14 | G3 == 15 ~ "12-15",
+    G3 == 16 | G3 == 17 | G3 == 18 | G3 == 19 | G3 == 20 ~"16-20"
+  ))
+
+
+data <- data %>%
+  mutate(cat_g3 = factor(cat_g3, levels=c("0-3", "4-7", "8-11", "12-15", "16-20"), ordered=TRUE))
+
+attach(data)
+set.seed(3)
+train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
+test_ind_neg <- -train_ind
+ftrain <- data[train_ind, ]
+ftest <- data[test_ind_neg, ]
+
+```
+
+Trying out a multicat ordinal logit on this:
+
+```{r}
+mod6 <- polr(cat_g3 ~ failed + goout + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, data = ftrain)
+summary(mod6)
+(ctable <- coef(summary(mod6)))
+p6 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p6))
+(ci5 <- confint(mod6))
+
+
+acc.ord6 <- predict(mod6, ftrain)
+ctable <- table(ftrain$cat_g3, acc.ord6)
+ctable
+
+```
+Still not very accurate for the training with 
 
 ## Trees etc
 
