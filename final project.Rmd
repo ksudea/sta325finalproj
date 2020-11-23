@@ -22,6 +22,7 @@ require(Hmisc)
 library(randomForest)
 library(tree)
 library(rpart)
+library(MNLpred)
 
 ```
 
@@ -167,13 +168,7 @@ data[["failed"]] <- as.factor(data[["failed"]])
 
 
 
-### Exploratory Data Analysis 
-
-#important EDA plots
-```{r}
-
-```
-
+### Exploratory Data Analysis
 
 ```{r}
 summary(data)
@@ -637,7 +632,7 @@ From this plot, it appears that only `goout` and `first_gen_college` satisfy the
 
 ```{r}
 library(VGAM)
-fitty <- vglm(cat_g3 ~ failed + absences + goout + sex + guardian + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, family = cumulative(parallel=TRUE~goout + first_gen_college + sex + guardian), data = ftrain)
+fitty <- vglm(cat_g3 ~ failed + absences + goout + sex + guardian + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, family = cumulative(parallel=TRUE~goout + sex + guardian), data = ftrain)
 summary(fitty)
 
 vglm_pred_probs <- predict(fitty, ftest, type = "response")
@@ -650,8 +645,50 @@ tab
 library(ggplot2)
 
 ```
-42% accuracy in this case on the test set.
+44% accuracy in this case on the test set.
 
+## plot predicted probabilities
+```{r}
+plotData <- melt(cbind(ftest %>% dplyr::select(absences, cat_g3), vglm_pred_probs),
+                 id.vars = c("absences", "cat_g3"))
+plotData
+ggplot(plotData, aes(x = absences, y = value, color = variable)) +
+  stat_smooth(method="auto", se = FALSE) +
+  labs(title = "Probability of Six-Category Final Grade Classifications", x = "Number of Absences", y = "Probability") + 
+  theme(plot.title = element_text(size=18), axis.title = element_text(size = 14), legend.title = element_text(size = 14),
+        plot.margin = unit(c(2,2,2,2),"cm"))
+
+plotData2 <- melt(cbind(ftest %>% dplyr::select(first_gen_college, cat_g3), vglm_pred_probs),
+                 id.vars = c("first_gen_college", "cat_g3"))
+plotData2
+ggplot(plotData2, aes(x = first_gen_college, y = value, fill = variable)) +
+  geom_violin() +
+  labs(title = "Probability of Six-Category Final Grade Classifications", x = "Parental First Generation Status", 
+       y = "Probability") + 
+  theme(plot.title = element_text(size=18), axis.title = element_text(size = 14), legend.title = element_text(size = 14),
+        plot.margin = unit(c(2,2,2,2),"cm"))
+
+?theme
+?ggtitle
+
+
+#library(effects)
+#plot(Effect("absences", fitty), multiline = T)
+#plot(Effect("studytime", mod6), multiline = T)
+
+```
+
+#important motivation plots
+```{r}
+data %>% group_by(romantic) %>% 
+  summarize()
+
+plot(absences, G3)
+ggplot(data, aes(x = G3, fill = schoolsup)) +
+       geom_density(alpha = 0.4) + 
+  labs(title = "Final Grade Distribution by Parental Higher Education Attainment", x = "Final Grade", y = "Density")
+
+```
 Random forest:
 
 ```{r}
