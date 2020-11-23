@@ -566,12 +566,81 @@ p6 <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 (ci5 <- confint(mod6))
 
 
-acc.ord6 <- predict(mod6, ftrain)
-ctable <- table(ftrain$cat_g3, acc.ord6)
+acc.ord6 <- predict(mod6, ftest)
+ctable <- table(ftest$cat_g3, acc.ord6)
 ctable
-
+?diag()
+class_accuracy <- sum(diag(ctable))/length(ftest$cat_g3)
+class_accuracy
 ```
 Still not very accurate for the training
+
+To determine which predictors, satisfy the proportional odds assumption, we will run a test.
+```{r}
+# recode cat_g3 as numbers 1 to 6
+train_vglm <- ftrain %>% 
+  mutate(cat_g3 = as.ordered(ifelse(cat_g3 == "Poor", 1, 
+                     ifelse(cat_g3 == "Weak", 2,
+                        ifelse(cat_g3 == "Sufficient", 3, 
+                           ifelse(cat_g3 == "Good", 4,
+                              ifelse(cat_g3 == "Very Good", 5, 6)))))))
+test_vglm <- ftest %>% 
+  mutate(cat_g3 = as.ordered(ifelse(cat_g3 == "Poor", 1, 
+                     ifelse(cat_g3 == "Weak", 2,
+                        ifelse(cat_g3 == "Sufficient", 3, 
+                           ifelse(cat_g3 == "Good", 4,
+                              ifelse(cat_g3 == "Very Good", 5, 6)))))))
+
+sf <- function(y) {
+  c('Y>=1' = qlogis(mean(y >= 1)),
+    'Y>=2' = qlogis(mean(y >= 2)),
+    'Y>=3' = qlogis(mean(y >= 3)),
+    'Y>=4' = qlogis(mean(y >= 4)),
+    'Y>=5' = qlogis(mean(y >= 5)),
+    'Y>=6' = qlogis(mean(y >= 6)))
+}
+
+require(Hmisc)
+cat_table <- with(train_vglm, summary(as.numeric(cat_g3) ~ failed + goout + romantic + first_gen_college + 
+                                        studytime + sex + guardian,
+                                  fun = sf))
+cat_table
+train_vglm
+
+?summary()
+```
+
+```{r}
+glm(I(as.numeric(cat_g3) >= 2) ~ failed, family="binomial", data = train_vglm)
+glm(I(as.numeric(cat_g3) >= 3) ~ failed, family="binomial", data = train_vglm)
+glm(I(as.numeric(cat_g3) >= 4) ~ failed, family="binomial", data = train_vglm)
+glm(I(as.numeric(cat_g3) >= 5) ~ failed, family="binomial", data = train_vglm)
+glm(I(as.numeric(cat_g3) >= 6) ~ failed, family="binomial", data = train_vglm)
+
+cat_table[,7] <- cat_table[,7] - cat_table[,3]
+cat_table[,6] <- cat_table[,6] - cat_table[,3]
+cat_table[,5] <- cat_table[,5] - cat_table[,3]
+cat_table[,4] <- cat_table[,4] - cat_table[,3]
+cat_table[,3] <- cat_table[,3] - cat_table[,3]
+cat_table
+
+plot(cat_table, which = 1:6, pch = 1:6, xlab = "logit", main = "Parallel Slopes Test", xlim = range(cat_table[,3:7]))
+
+```
+From this plot, it appears that only `goout` and `first_gen_college` satisfy the proportional odds assumption. 
+
+```{r}
+library(VGAM)
+fitty <- vglm(cat_g3 ~ failed + absences + goout + sex + guardian + romantic + schoolsup + first_gen_college + schoolsup * studytime + schoolsup * first_gen_college, family = cumulative(parallel=TRUE~goout + first_gen_college + sex + guardian), data = ftrain)
+summary(fitty)
+
+vglm_pred_probs <- predict(fitty, ftest, type = "response")
+vglm_pred_g3 <- colnames(vglm_pred_probs)[apply(vglm_pred_probs,1,which.max)]
+vglm_pred_probs
+tab <- table(ftest$cat_g3, vglm_pred_g3)
+tab
+```
+
 
 Random forest:
 
