@@ -169,6 +169,12 @@ data[["failed"]] <- as.factor(data[["failed"]])
 
 ### Exploratory Data Analysis 
 
+#important EDA plots
+```{r}
+
+```
+
+
 ```{r}
 summary(data)
 ```
@@ -641,6 +647,8 @@ vglm_pred_g3 <- colnames(vglm_pred_probs)[apply(vglm_pred_probs,1,which.max)]
 vglm_pred_g3
 tab <- table(ftest$cat_g3, vglm_pred_g3)
 tab
+library(ggplot2)
+
 ```
 42% accuracy in this case on the test set.
 
