@@ -547,7 +547,7 @@ Highly inaccurate model, not a good fit for the data.
 ## 6-category grades modeling
 
 ```{r}
-set.seed(3)
+set.seed(24)
 train_ind <- sample(x = nrow(data), size = 0.8 * nrow(data))
 test_ind_neg <- -train_ind
 ftrain <- data[train_ind, ]
@@ -635,12 +635,14 @@ fitty <- vglm(cat_g3 ~ failed + absences + goout + sex + guardian + romantic + s
 summary(fitty)
 
 vglm_pred_probs <- predict(fitty, ftest, type = "response")
+?predict
 vglm_pred_g3 <- colnames(vglm_pred_probs)[apply(vglm_pred_probs,1,which.max)]
-vglm_pred_probs
+
+vglm_pred_g3
 tab <- table(ftest$cat_g3, vglm_pred_g3)
 tab
 ```
-
+42% accuracy in this case on the test set.
 
 Random forest:
 
